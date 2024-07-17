@@ -264,7 +264,7 @@ linda <- function(feature.dat, meta.dat, phyloseq.obj = NULL, formula, feature.d
 
 
 perform_DAA <- function(feature.dat, meta.dat, grp.name, adj.name, design, prev.filter, max.abund.filter,
-                        method = c('LinDA'), verbose=T){
+                        method = c('LinDA'), verbose){
   if(method =='LinDA'){
     if(design %in% c('CaseControl','CrossSectional')){
       if (is.null(adj.name)) {

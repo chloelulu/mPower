@@ -88,16 +88,27 @@ This function estimates the power for microbiome study design based on various e
 }
 \examples{
 data(feature.dat)
-feature.dat <- feature.dat[rowSums(feature.dat != 0) > 0.1, ]
+## Exclude feature exist in less than 2 samples
+feature.dat <- feature.dat[rowSums(feature.dat != 0) > 2, ]
 ## Estimate the parameters
 model.paras <- EstPara(ref.otu.tab = feature.dat)
-## Estimate taxa-level power for case control study for 50 samples, 10\% differential taxa
-mPower(feature.dat = feature.dat, model.paras = model.paras, test = 'Community', design = 'CaseControl',
-      nSams = 50, grp.ratio = 0.5, iters = 50, alpha = 0.05, distance = 'BC',
-      diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 'random',
-      covariate.eff.min = 0, covariate.eff.maxs = c(1, 2),
-      prev.filter = 0.1, max.abund.filter = 0.002,
-      confounder = 'no',depth.mu = 10000, depth.theta = 5)
+## Estimate taxa-level power for case control study
+res1 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
+              test = 'Community', design = 'CaseControl',
+              nSams = 50, grp.ratio = 0.5,
+              iters = 500, alpha = 0.05, distance = 'BC',
+              diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 'random',
+              covariate.eff.min = 0, covariate.eff.maxs = c(1, 2, 3),
+              confounder = 'no', depth.mu = 10000, depth.theta = 5)
+## Estimate community-level power for case control study
+res2 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
+              test = 'Taxa', design = 'CaseControl',
+              nSams = c(20, 40, 80), grp.ratio = 0.5,
+              iters = 100, alpha = 0.05, distance = 'BC',
+              diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 'random',
+              covariate.eff.min = 0, covariate.eff.maxs = 2,
+              prev.filter = 0.1, max.abund.filter = 0.002,
+              confounder = 'yes', depth.mu = 100000, depth.theta = 5)
 }
 \references{
 Lu Yang, Jun Chen. mPower: a Real Data-based Power Analysis Tool for Microbiome Study Design.

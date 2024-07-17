@@ -64,7 +64,7 @@ mPower <- function(feature.dat, model.paras,
                    diff.otu.pct = 0.1, diff.otu.direct = c('unbalanced','balanced'), diff.otu.mode = c('random','abundant','rare'),
                    covariate.eff.min=0, covariate.eff.maxs = c(1,2), prev.filter = 0.1, max.abund.filter = 0.002,
                    confounder = c('no','yes'), conf.cov.cor = 0.6, conf.diff.otu.pct = 0.1, conf.nondiff.otu.pct = 0.1, confounder.eff.min = 0, confounder.eff.max = 1,
-                   depth.mu = 10000, depth.theta = 5){
+                   depth.mu = 10000, depth.theta = 5, verbose =T){
 
   this.call <- match.call()
   design <- match.arg(design)
@@ -87,7 +87,7 @@ mPower <- function(feature.dat, model.paras,
 
   adj.name <- if (confounder == "yes") "Z" else NULL
 
-  cat('----Calculating in progressing----')
+  if(verbose) cat('----Calculating in progressing----')
 
   ## 0. CaseControl or CrossSectional design
   if(design == "CaseControl" || design == "CrossSectional") {
@@ -98,13 +98,13 @@ mPower <- function(feature.dat, model.paras,
     for(nSam in nSams){
       for(covariate.eff.max in covariate.eff.maxs){
 
-        cat('\n nSam=',nSam,' & covariate.eff.max=',covariate.eff.max,'\n')
+        if(verbose) cat('\n nSam=',nSam,' & covariate.eff.max=',covariate.eff.max,'\n')
 
         tpr <- fdr <- tpr.top <- fdr.top <- tpr.bottom <- fdr.bottom <- prob <-
           matrix(NA, nrow = iters, ncol = length(methods), dimnames = list(1:iters, methods))
         P <- R2 <- c()
         for(iter in 1:iters){
-          cat('mPower is calculating:', iter, 'of', iters,'iterations.\n')
+          if(verbose) cat('mPower is calculating:', iter, 'of', iters,'iterations.\n')
           ## 1. data simulation
           sim.obj <- SimulateMSeqU(
             ref.otu.tab = feature.dat,
@@ -141,7 +141,7 @@ mPower <- function(feature.dat, model.paras,
               try({
                 res.obj <- perform_DAA(feature.dat = sim.obj$otu.tab.sim, meta.dat = meta.dat, design = design,
                                        prev.filter = prev.filter, max.abund.filter = max.abund.filter,
-                                       grp.name = grp.name, adj.name = adj.name, method = method)
+                                       grp.name = grp.name, adj.name = adj.name, method = method, verbose=verbose)
                 p.adj.fdr <- res.obj$p.adj.fdr
                 names(p.adj.fdr) <- rownames(res.obj)
                 truth <- truth[names(p.adj.fdr)]
@@ -234,8 +234,8 @@ mPower <- function(feature.dat, model.paras,
       Probs.df$covariate.eff.max <- factor(Probs.df$covariate.eff.max, levels = sort(unique(Probs.df$covariate.eff.max)))
       plot7 <- generate_plot3(data = Probs.df, effect.size = 'covariate.eff.max', ylab= 'pOCR', error.bar = F)
       plot <- ggarrange(plot1, plot7, nrow =1)
-      pOCR <- Probs.df %>% select(-variable) %>% dplyr::rename(pOCR=value)
-      aTPR <- TPR.df %>% select(-variable) %>% dplyr::rename(aTPR=value)
+      pOCR <- Probs.df %>% dplyr::select(-variable) %>% dplyr::rename(pOCR='value', `max log2 fold change` = 'covariate.eff.max', `Sample size`='nSam')
+      aTPR <- TPR.df %>% dplyr::select(-variable) %>% dplyr::rename(aTPR='value', `max log2 fold change` = 'covariate.eff.max', `Sample size`='nSam')
 
     }
 
@@ -256,7 +256,7 @@ mPower <- function(feature.dat, model.paras,
       plot9 <- generate_plot3(data = adonis.R2, effect.size = 'covariate.eff.max', ylab= 'R2 (Percent Explained Variance)', R2=T)
       plot <- ggarrange(plot9, plot5, nrow =1)
 
-      power <- TPR.beta %>% select(-variable) %>% dplyr::rename(power='value')
+      power <- TPR.beta %>% dplyr::select(-variable) %>% dplyr::rename(power='value', `max log2 fold change` = 'covariate.eff.max', `Sample size`='nSam')
     }
   }
 
@@ -272,13 +272,13 @@ mPower <- function(feature.dat, model.paras,
     for(nSubject in nSubjects){
       for(MgT.max in MgT.maxS){
 
-        cat('\n nSubject=',nSubject,'& MgT.max=',MgT.max,'\n')
+        if(verbose) cat('\n nSubject=',nSubject,'& MgT.max=',MgT.max,'\n')
 
         tpr <- fdr <- tpr.top <- fdr.top <- tpr.bottom <- fdr.bottom <- prob <-
           matrix(NA, nrow = iters, ncol = length(methods), dimnames = list(1:iters, methods))
         P <- R2 <- c()
         for(iter in 1:iters){
-          cat('mPower is calculating:', iter, 'of', iters,' iterations.\n')
+          if(verbose) cat('mPower is calculating:', iter, 'of', iters,' iterations.\n')
           ## 1. data simulation
           sim.obj <- SimulateMSeqCU(ref.otu.tab= feature.dat, model.paras = model.paras,
                                     nSubject = nSubject, nOTU = nrow(feature.dat), nTime = 2,
@@ -387,7 +387,7 @@ mPower <- function(feature.dat, model.paras,
       TPR.df <- data_summary(data =melt(TPR.df,id = c('nSam','covariate.eff.max')), formula = '.~ variable +nSam+covariate.eff.max')
       TPR.df$nSam <- factor(TPR.df$nSam, levels = sort(unique(TPR.df$nSam)))
       TPR.df$covariate.eff.max <- factor(TPR.df$covariate.eff.max, levels = sort(unique(TPR.df$covariate.eff.max)))
-      plot1 <- generate_plot3(data = TPR.df,effect.size = 'covariate.eff.max', ylab= 'aTPR', matched.pair = T)
+      plot1 <- generate_plot3(data = TPR.df,effect.size = 'covariate.eff.max', ylab= 'aTPR', matched.pair = T, verbose=verbose)
 
       # probability of making any discovery
       Probs.df <- cbind.data.frame(unlist(Probs)) %>% mutate(variable =method)
@@ -400,8 +400,8 @@ mPower <- function(feature.dat, model.paras,
 
       plot <- ggarrange(plot1, plot7, nrow =1)
 
-      pOCR <- Probs.df %>% select(-variable) %>% dplyr::rename(pOCR=value)
-      aTPR <- TPR.df %>% select(-variable) %>% dplyr::rename(aTPR=value)
+      pOCR <- Probs.df %>% dplyr::select(-variable) %>% dplyr::rename(pOCR='value', `max log2 fold change` = 'covariate.eff.max', `Sample size`='nSam')
+      aTPR <- TPR.df %>% dplyr::select(-variable) %>% dplyr::rename(aTPR='value', `max log2 fold change` = 'covariate.eff.max', `Sample size`='nSam')
     }
 
     if(test == 'Community'){
@@ -422,7 +422,7 @@ mPower <- function(feature.dat, model.paras,
       plot9 <- generate_plot3(data = adonis.R2, effect.size = 'covariate.eff.max', ylab= 'R2 (Percent Explained Variance)', R2=T, matched.pair = T)
 
       plot <- ggarrange(plot9, plot5, nrow =1)
-      power <- TPR.beta %>% select(-variable) %>% dplyr::rename(power='value')
+      power <- TPR.beta %>% dplyr::select(-variable) %>% dplyr::rename(power='value', `max log2 fold change` = 'covariate.eff.max', `Sample size`='nSam')
     }
   }
 
