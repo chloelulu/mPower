@@ -1,0 +1,107 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# mPower: A Real Data-based Power Analysis Tool for Microbiome Study Design
+
+This function estimates the power for microbiome study design based on various experimental designs and parameters. For details of the proposed method, please refer to the following paper:
+
+Lu Yang, Jun Chen. mPower: A Real Data-based Power Analysis Tool for Microbiome Study Design
+
+## Overview of mPower: ![This is a caption for the figure](workflows.png)
+
+## Usage
+### 1. Local package installation
+
+You can install mPower as follows:
+
+```{r}
+# install.packages("devtools")
+devtools::install_github("chloelulu/mPower")
+```
+
+### 2. Shiny R App
+
+You can also use our Shiny App without coding skills, please access the Shiny App at: https://microbiomestat.shinyapps.io/mPower/
+
+## Example: Case-Control Gut Microbiome Study
+
+Assume you are designing a case-control gut microbiome study (e.g., cancer vs healthy individuals) and want to determine the sample size needed to achieve 80% community-level and taxa-level power. Assume a log 2 fold change of 2 based on the literature.
+
+### Estimate Taxa-Level Power for Case-Control Study
+For a study with 50 samples and 10% differential taxa:
+```{r example}
+library(mPower)
+data(feature.dat)
+```
+
+### Exclude features present in fewer than 2 samples
+```{r example}
+feature.dat <- feature.dat[rowSums(feature.dat != 0) > 2, ]
+```
+
+### Estimate the parameters
+```{r example}
+model.paras <- EstPara(ref.otu.tab = feature.dat)
+```
+
+### Estimate taxa-level power for case-control study (with at least 500 iterations in practice)
+```{r example}
+res1 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
+               test = 'Community', design = 'CaseControl',
+               nSams = 50, grp.ratio = 0.5,
+               iters = 10, alpha = 0.05, distance = 'BC',
+               diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 'random',
+               covariate.eff.min = 0, covariate.eff.maxs = c(1, 2),
+               confounder = 'no', depth.mu = 10000, depth.theta = 5)
+
+```
+#### Community-level power table ("power" column indicates community-level power)
+```{r example}
+res1$power
+```
+
+#### R2 (variance explained) and community-level power curve
+```{r example}
+res1$plot
+```
+
+
+### Estimate Taxa-Level Power for Different Sample Sizes
+For a study with sample sizes of 20 and 80, and 10% differential taxa:
+```{r example}
+res2 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
+               test = 'Taxa', design = 'CaseControl',
+               nSams = c(20, 80), grp.ratio = 0.5,
+               iters = 10, alpha = 0.05, distance = 'BC',
+               diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 'random',
+               covariate.eff.min = 0, covariate.eff.maxs = 2,
+               prev.filter = 0.1, max.abund.filter = 0.002,
+               confounder = 'yes', depth.mu = 100000, depth.theta = 5)
+```
+
+#### Taxa-level power table ("pOCR" column indicates the probability of making at least one correct rejection)
+```{r example}
+res2$pOCR
+```
+#### Taxa-level power table ("aTPR" column indicates the average true positive rate)
+```{r example}
+res2$aTPR
+```
+
+#### pOCR power curve (left) and aTPR power curve (right)
+```{r example}
+res2$plot
+```
+
