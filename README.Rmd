@@ -2,10 +2,11 @@
 title: "mPower: A Real Data-based Power Analysis Tool for Microbiome Study Design"
 date: "`r Sys.Date()`"
 output: github_document
+bibliography: references.bib
 always_allow_html: yes
 ---
 
-This package estimates the power for microbiome study design based on various experimental designs and parameters. For details of the proposed method, please refer to the following paper: Lu Yang, Jun Chen. mPower: A Real Data-based Power Analysis Tool for Microbiome Study Design
+This package estimates the power for microbiome study design based on various experimental designs and parameters. 
 
 
 
@@ -61,7 +62,7 @@ res1 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
 
 "power" column indicates community-level power: the probability of rejecting the null hypothesis when the null hypothesis is false. 
 ```{r echo=F, error=TRUE, message=FALSE, warning=FALSE, include=T, results="asis"}
-knitr::kable(res1$power, format = "markdown", caption = "Community-Level Power Table")
+knitr::kable(res1$power, format = "markdown")
 ```
 
 ##### 2.1.2 Output2: \( R^2 \) (variance explained) and community-level power curve
@@ -88,14 +89,14 @@ res2 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
 
 "pOCR" indicates the probability of making at least one correct rejection, meaning at least one taxon has a FDR-adjusted pvalue less than alpha(0.05).
 ```{r echo=F, error=TRUE, message=FALSE, warning=FALSE, include=T, results="asis"}
-knitr::kable(res2$pOCR, format = "markdown", caption = "Taxa-Level Power Table")
+knitr::kable(res2$pOCR, format = "markdown")
 ```
 
 ##### 2.2.2 Output2: Taxa-level power table 
 
 "aTPR" column indicates the average true positive rate. SD(Standard deviation) for each setting, i.e., sample size = 20 & max log2 fold change =2. ymax and ymin represents the upper and lower bound of the 95% confidence interval for the aTPR.
 ```{r echo=F, error=TRUE, message=FALSE, warning=FALSE, include=T, results="asis"}
-knitr::kable(res2$aTPR, format = "markdown", caption = "Taxa-Level Power Table")
+knitr::kable(res2$aTPR, format = "markdown")
 
 ```
 
@@ -105,7 +106,8 @@ knitr::kable(res2$aTPR, format = "markdown", caption = "Taxa-Level Power Table")
 res2$plot
 ```
 
+### References
 
-
+[@yang2022comprehensive; @yang2023benchmarking; @yang2024mpower]
 
 

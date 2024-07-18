@@ -4,9 +4,7 @@ Design
 2024-07-17
 
 This package estimates the power for microbiome study design based on
-various experimental designs and parameters. For details of the proposed
-method, please refer to the following paper: Lu Yang, Jun Chen. mPower:
-A Real Data-based Power Analysis Tool for Microbiome Study Design
+various experimental designs and parameters.
 
 ![](workflows.png)
 
@@ -34,12 +32,11 @@ needed to achieve 80% community-level and taxa-level power. Assume a log
 2 fold change of 2 based on the literature.
 
 ``` r
-library(reactable) # show table in Markdown
 library(mPower)
 data(feature.dat)
 ```
 
-Exclude features present in fewer than 2 samples
+Preprocessing: exclude features present in fewer than 2 samples.
 
 ``` r
 feature.dat <- feature.dat[rowSums(feature.dat != 0) > 2, ]
@@ -63,18 +60,21 @@ res1 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
                confounder = 'no', depth.mu = 10000, depth.theta = 5, verbose = F)
 ```
 
-##### 2.1.1 Output1: Community-level power table (“power” column indicates community-level power)
+##### 2.1.1 Output1: Community-level power table
+
+“power” column indicates community-level power: the probability of
+rejecting the null hypothesis when the null hypothesis is false.
 
 | Sample size | max log2 fold change | power |        SD |      ymax |      ymin |
 |:------------|:---------------------|------:|----------:|----------:|----------:|
-| 50          | 1                    | 0.370 | 0.4832878 | 0.4123620 | 0.3276380 |
-| 50          | 2                    | 0.754 | 0.4311099 | 0.7917884 | 0.7162116 |
+| 50          | 1                    | 0.386 | 0.4873181 | 0.4287153 | 0.3432847 |
+| 50          | 2                    | 0.748 | 0.4345961 | 0.7860940 | 0.7099060 |
 
-Community-Level Power Table
+##### 2.1.2 Output2: $R^2$ (variance explained) and community-level power curve
 
-##### 2.1.2 Output2: R2 (variance explained) and community-level power curve
-
-![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+$R^2$ is generated from PERMANOVA, denotes the proportion of the total
+variation in the response data that is explained by the explanatory
+variables. ![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 #### 2.2 Estimate Taxa-Level Power for Case-Control Study
 
@@ -89,24 +89,60 @@ res2 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
                confounder = 'yes', depth.mu = 100000, depth.theta = 5, verbose = F)
 ```
 
-##### 2.2.1 Output1: Taxa-level power table (“pOCR” column indicates the probability of making at least one correct rejection)
+##### 2.2.1 Output1: Taxa-level power table
+
+“pOCR” indicates the probability of making at least one correct
+rejection, meaning at least one taxon has a FDR-adjusted pvalue less
+than alpha(0.05).
 
 | Sample size | max log2 fold change | pOCR |
 |:------------|:---------------------|-----:|
-| 20          | 2                    | 0.34 |
-| 80          | 2                    | 0.92 |
+| 20          | 2                    | 0.40 |
+| 80          | 2                    | 0.86 |
 
-Taxa-Level Power Table
+##### 2.2.2 Output2: Taxa-level power table
 
-##### 2.2.2 Output2: Taxa-level power table (“aTPR” column indicates the average true positive rate)
+“aTPR” column indicates the average true positive rate. SD(Standard
+deviation) for each setting, i.e., sample size = 20 & max log2 fold
+change =2. ymax and ymin represents the upper and lower bound of the 95%
+confidence interval for the aTPR.
 
 | Sample size | max log2 fold change |      aTPR |        SD |      ymax |      ymin |
 |:------------|:---------------------|----------:|----------:|----------:|----------:|
-| 20          | 2                    | 0.0186403 | 0.0288390 | 0.0266341 | 0.0106466 |
-| 80          | 2                    | 0.1068024 | 0.0681121 | 0.1256821 | 0.0879227 |
-
-Taxa-Level Power Table
+| 20          | 2                    | 0.0265493 | 0.0395909 | 0.0375233 | 0.0155752 |
+| 80          | 2                    | 0.0916704 | 0.0632646 | 0.1092064 | 0.0741344 |
 
 ##### 2.2.3 Output3: aTPR power curve(left) and pOCR power curve(right)
 
 ![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+### References
+
+(Yang and Chen 2022, 2023, n.d.)
+
+<div id="refs" class="references csl-bib-body hanging-indent">
+
+<div id="ref-yang2022comprehensive" class="csl-entry">
+
+Yang, Lu, and Jun Chen. 2022. “A Comprehensive Evaluation of Microbial
+Differential Abundance Analysis Methods: Current Status and Potential
+Solutions.” *Microbiome* 10 (1): 130.
+
+</div>
+
+<div id="ref-yang2023benchmarking" class="csl-entry">
+
+———. 2023. “Benchmarking Differential Abundance Analysis Methods for
+Correlated Microbiome Sequencing Data.” *Briefings in Bioinformatics* 24
+(1): bbac607.
+
+</div>
+
+<div id="ref-yang2024mpower" class="csl-entry">
+
+———. n.d. “mPower: A Real Data-Based Power Analysis Tool for Microbiome
+Study Design.”
+
+</div>
+
+</div>
