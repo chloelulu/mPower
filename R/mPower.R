@@ -24,7 +24,12 @@
 #' @param confounder.eff.max the maximum log2 fold change of taxa associated with the confounder.
 #' @param depth.mu the mean sequencing depth to be simulated. The default is 10,000.
 #' @param depth.theta the standard deviation of the sequencing depth. It is based on Negative Binomial distribution. It regulates the standard deviation, where higher value results in a reduced standard deviation. Dispersion of sequencing depth = Mean sequencing depth^2 /(Standard deviation^2 - Mean sequencing depth).
-#' @return A ggplot object visualizing the power estimation results.
+#' @return A list with the elements
+#' \item{call}{the call}
+#' \item{plot}{the power curves}
+#' \item{pOCR}{the probability of making at least one correct rejection. Only returns for Taxa-level power.}
+#' \item{aTPR}{the average true positive rate. Only returns for Taxa-level power.}
+#' \item{power}{Community-level power.}
 #' @rdname mPower
 #' @examples
 #' data(feature.dat)

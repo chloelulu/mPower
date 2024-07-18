@@ -35,7 +35,7 @@ You can also use our Shiny App without coding skills, please access the Shiny Ap
 
 Assume you are designing a case-control gut microbiome study (e.g., cancer vs healthy individuals) and want to determine the sample size needed to achieve 80% community-level and taxa-level power. Assume a log 2 fold change of 2 based on the literature.
 
-#### 2.1 Estimate Community-Level Power for Case-Control Study
+
 ```{r}
 library(reactable) # show table in Markdown
 library(mPower)
@@ -52,7 +52,7 @@ Estimate the parameters
 model.paras <- EstPara(ref.otu.tab = feature.dat)
 ```
 
-Apply mPower
+#### 2.1 Estimate Community-Level Power for Case-Control Study
 ```{r, message=FALSE, warning=FALSE}
 res1 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
                test = 'Community', design = 'CaseControl',
@@ -76,7 +76,6 @@ res1$plot
 
 
 #### 2.2 Estimate Taxa-Level Power for Case-Control Study
-
 ```{r, message=FALSE, warning=FALSE}
 res2 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
                test = 'Taxa', design = 'CaseControl',
@@ -92,12 +91,14 @@ res2 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
 ```{r echo=F, error=TRUE, message=FALSE, warning=FALSE, include=T, results="asis"}
 reactable(res2$pOCR, resizable = T)
 ```
+
 ##### 2.2.2 Output2: Taxa-level power table ("aTPR" column indicates the average true positive rate)
 ```{r echo=F, error=TRUE, message=FALSE, warning=FALSE, include=T, results="asis"}
 reactable(res2$aTPR, resizable = T)
 ```
 
-##### 2.2.3 Output3: pOCR power curve (left) and aTPR power curve (right)
+##### 2.2.3 Output3: aTPR power curve(left) and pOCR power curve(right)
+
 ```{r echo=F,fig.height=6, fig.width=16}
 res2$plot
 ```
