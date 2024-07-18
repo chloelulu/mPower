@@ -8,8 +8,8 @@ output:
     toc_float:
       collapsed: no
       smooth_scroll: no
+      always_allow_html: yes
 ---
-
 
 This package estimates the power for microbiome study design based on various experimental designs and parameters. For details of the proposed method, please refer to the following paper: Lu Yang, Jun Chen. mPower: A Real Data-based Power Analysis Tool for Microbiome Study Design
 
