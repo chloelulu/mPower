@@ -1,5 +1,7 @@
-
-# mPower: A Real Data-based Power Analysis Tool for Microbiome Study Design
+mPower: A Real Data-based Power Analysis Tool for Microbiome Study
+Design
+================
+2024-07-17
 
 This package estimates the power for microbiome study design based on
 various experimental designs and parameters. For details of the proposed
@@ -63,8 +65,12 @@ res1 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
 
 ##### 2.1.1 Output1: Community-level power table (“power” column indicates community-level power)
 
-<div class="reactable html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-34857f0edcbfbb2c0cba" style="width:auto;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-34857f0edcbfbb2c0cba">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"Sample size":["50","50"],"max log2 fold change":["1","2"],"power":[0.378,0.732],"SD":[0.485373232006768,0.443361182645205],"ymax":[0.420544839616056,0.770862321124791],"ymin":[0.335455160383944,0.693137678875208]},"columns":[{"id":"Sample size","name":"Sample size","type":"factor"},{"id":"max log2 fold change","name":"max log2 fold change","type":"factor"},{"id":"power","name":"power","type":"numeric"},{"id":"SD","name":"SD","type":"numeric"},{"id":"ymax","name":"ymax","type":"numeric"},{"id":"ymin","name":"ymin","type":"numeric"}],"resizable":true,"dataKey":"50c82439d041f8f057a878bdcd02b1f7"},"children":[]},"class":"reactR_markup"},"evals":[],"jsHooks":[]}</script>
+| Sample size | max log2 fold change | power |        SD |      ymax |      ymin |
+|:------------|:---------------------|------:|----------:|----------:|----------:|
+| 50          | 1                    | 0.370 | 0.4832878 | 0.4123620 | 0.3276380 |
+| 50          | 2                    | 0.754 | 0.4311099 | 0.7917884 | 0.7162116 |
+
+Community-Level Power Table
 
 ##### 2.1.2 Output2: R2 (variance explained) and community-level power curve
 
@@ -85,13 +91,21 @@ res2 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
 
 ##### 2.2.1 Output1: Taxa-level power table (“pOCR” column indicates the probability of making at least one correct rejection)
 
-<div class="reactable html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-595501ac9c6ffe9b0f1c" style="width:auto;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-595501ac9c6ffe9b0f1c">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"Sample size":["20","80"],"max log2 fold change":["2","2"],"pOCR":[0.24,1]},"columns":[{"id":"Sample size","name":"Sample size","type":"factor"},{"id":"max log2 fold change","name":"max log2 fold change","type":"factor"},{"id":"pOCR","name":"pOCR","type":"numeric"}],"resizable":true,"dataKey":"a8e841316291e83d954e6838c8a712a1"},"children":[]},"class":"reactR_markup"},"evals":[],"jsHooks":[]}</script>
+| Sample size | max log2 fold change | pOCR |
+|:------------|:---------------------|-----:|
+| 20          | 2                    | 0.34 |
+| 80          | 2                    | 0.92 |
+
+Taxa-Level Power Table
 
 ##### 2.2.2 Output2: Taxa-level power table (“aTPR” column indicates the average true positive rate)
 
-<div class="reactable html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-e0b9afa38c2b5d42ced5" style="width:auto;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-e0b9afa38c2b5d42ced5">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"Sample size":["20","80"],"max log2 fold change":["2","2"],"aTPR":[0.0183058194454075,0.115363484340006],"SD":[0.0381776159825601,0.07665312933019],"ymax":[0.0288881146965228,0.136610647779036],"ymin":[0.00772352419429232,0.0941163209009754]},"columns":[{"id":"Sample size","name":"Sample size","type":"factor"},{"id":"max log2 fold change","name":"max log2 fold change","type":"factor"},{"id":"aTPR","name":"aTPR","type":"numeric"},{"id":"SD","name":"SD","type":"numeric"},{"id":"ymax","name":"ymax","type":"numeric"},{"id":"ymin","name":"ymin","type":"numeric"}],"resizable":true,"dataKey":"b641aebe47037b9226d3d4746ac65025"},"children":[]},"class":"reactR_markup"},"evals":[],"jsHooks":[]}</script>
+| Sample size | max log2 fold change |      aTPR |        SD |      ymax |      ymin |
+|:------------|:---------------------|----------:|----------:|----------:|----------:|
+| 20          | 2                    | 0.0186403 | 0.0288390 | 0.0266341 | 0.0106466 |
+| 80          | 2                    | 0.1068024 | 0.0681121 | 0.1256821 | 0.0879227 |
+
+Taxa-Level Power Table
 
 ##### 2.2.3 Output3: aTPR power curve(left) and pOCR power curve(right)
 

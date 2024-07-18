@@ -1,14 +1,8 @@
 ---
 title: "mPower: A Real Data-based Power Analysis Tool for Microbiome Study Design"
 date: "`r Sys.Date()`"
-output:
-  html_document:
-    toc: yes
-    toc_depth: 4
-    toc_float:
-      collapsed: no
-      smooth_scroll: no
-      always_allow_html: yes
+output: github_document
+always_allow_html: yes
 ---
 
 This package estimates the power for microbiome study design based on various experimental designs and parameters. For details of the proposed method, please refer to the following paper: Lu Yang, Jun Chen. mPower: A Real Data-based Power Analysis Tool for Microbiome Study Design
@@ -37,12 +31,11 @@ Assume you are designing a case-control gut microbiome study (e.g., cancer vs he
 
 
 ```{r}
-library(reactable) # show table in Markdown
 library(mPower)
 data(feature.dat)
 ```
 
-Exclude features present in fewer than 2 samples
+Preprocessing: exclude features present in fewer than 2 samples.
 ```{r}
 feature.dat <- feature.dat[rowSums(feature.dat != 0) > 2, ]
 ```
@@ -64,12 +57,16 @@ res1 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
 
 ```
 
-##### 2.1.1 Output1: Community-level power table ("power" column indicates community-level power)
+##### 2.1.1 Output1: Community-level power table 
+
+"power" column indicates community-level power: the probability of rejecting the null hypothesis when the null hypothesis is false. 
 ```{r echo=F, error=TRUE, message=FALSE, warning=FALSE, include=T, results="asis"}
-reactable(res1$power, resizable = T)
+knitr::kable(res1$power, format = "markdown", caption = "Community-Level Power Table")
 ```
 
-##### 2.1.2 Output2: R2 (variance explained) and community-level power curve
+##### 2.1.2 Output2: \( R^2 \) (variance explained) and community-level power curve
+
+\( R^2 \) is generated from PERMANOVA, denotes the proportion of the total variation in the response data that is explained by the explanatory variables.
 ```{r echo=F,fig.height=6, fig.width=16}
 res1$plot
 ```
@@ -87,14 +84,19 @@ res2 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
                confounder = 'yes', depth.mu = 100000, depth.theta = 5, verbose = F)
 ```
 
-##### 2.2.1 Output1: Taxa-level power table ("pOCR" column indicates the probability of making at least one correct rejection)
+##### 2.2.1 Output1: Taxa-level power table 
+
+"pOCR" indicates the probability of making at least one correct rejection, meaning at least one taxon has a FDR-adjusted pvalue less than alpha(0.05).
 ```{r echo=F, error=TRUE, message=FALSE, warning=FALSE, include=T, results="asis"}
-reactable(res2$pOCR, resizable = T)
+knitr::kable(res2$pOCR, format = "markdown", caption = "Taxa-Level Power Table")
 ```
 
-##### 2.2.2 Output2: Taxa-level power table ("aTPR" column indicates the average true positive rate)
+##### 2.2.2 Output2: Taxa-level power table 
+
+"aTPR" column indicates the average true positive rate. SD(Standard deviation) for each setting, i.e., sample size = 20 & max log2 fold change =2. ymax and ymin represents the upper and lower bound of the 95% confidence interval for the aTPR.
 ```{r echo=F, error=TRUE, message=FALSE, warning=FALSE, include=T, results="asis"}
-reactable(res2$aTPR, resizable = T)
+knitr::kable(res2$aTPR, format = "markdown", caption = "Taxa-Level Power Table")
+
 ```
 
 ##### 2.2.3 Output3: aTPR power curve(left) and pOCR power curve(right)
