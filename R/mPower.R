@@ -27,8 +27,8 @@
 #' @return A list with the elements
 #' \item{call}{the call}
 #' \item{plot}{the power curves}
-#' \item{pOCR}{the probability of making at least one correct rejection. Only returns for Taxa-level power.}
-#' \item{aTPR}{the average true positive rate. Only returns for Taxa-level power.}
+#' \item{pOCR}{the probability of making at least one correct rejection. Only returns for Taxa-level power estimate.}
+#' \item{aTPR}{the average true positive rate. Only returns for Taxa-level power estimate.}
 #' \item{power}{Community-level power.}
 #' @rdname mPower
 #' @examples
@@ -37,7 +37,7 @@
 #' feature.dat <- feature.dat[rowSums(feature.dat != 0) > 2, ]
 #' ## Estimate the parameters
 #' model.paras <- EstPara(ref.otu.tab = feature.dat)
-#' ## Estimate taxa-level power for case control study
+#' ## Estimate Community-level power for a case-control study
 #' res1 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
 #'               test = 'Community', design = 'CaseControl',
 #'               nSams = 50, grp.ratio = 0.5,
@@ -45,7 +45,7 @@
 #'               diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 'random',
 #'               covariate.eff.min = 0, covariate.eff.maxs = c(1, 2, 3),
 #'               confounder = 'no', depth.mu = 10000, depth.theta = 5)
-#' ## Estimate community-level power for case control study
+#' ## Estimate Taxa-level power for a case-control study
 #' res2 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
 #'               test = 'Taxa', design = 'CaseControl',
 #'               nSams = c(20, 40, 80), grp.ratio = 0.5,
