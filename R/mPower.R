@@ -11,7 +11,7 @@
 #' @param distance the type of distance metric used in community-level power estimation: "BC" or "Jaccard". Should be ignored for Taxa-level power estimation. Jaccard distance assesses community similarity by species presence or absence; Bray-Curtis (BC) distance considers both presence and species abundance.
 #' @param diff.otu.pct a numeric value between 0 and 1 indicating the percentage of differential taxa to be estimated. If 0, global null setting is simulated. The default is 0.1.
 #' @param diff.otu.direct should be "balanced" or "unbalanced". "balanced": the direction of change for these differential taxa is random, "unbalanced": direction of change is the same. The default is "balanced".
-#' @param diff.otu.mode should be "rare" or "mix" or "abundant". "abundant": differential taxa come from the top quartile of the abundance distribution, "rare": differential OTU come from the bottom quartile of the abundance distribution, and "mix": random set. The default is "abundant".
+#' @param diff.otu.mode should be "rare" or "abundant" or "random". "abundant": differential taxa come from the top quartile of the abundance distribution, "rare": differential OTU come from the bottom quartile of the abundance distribution, and "random": random set. The default is "abundant".
 #' @param covariate.eff.min a number indicating the minimal log2 fold change associated with the condition ("CaseControl" design), or the expected minimal change in the condition for a one-unit change in the taxa ("CrossSectional" design), or the minimal log2 fold change associated with the condition ("MatchedPair" design).
 #' @param covariate.eff.maxs a number or a vector indicating the lower and upper range for max log2 fold change. The definition of max log2 fold change: In "CaseControl" design (or "CrossSectional" with binary covariate), it represents the log2 fold change (LFC) between the conditions; In "CrossSectional" desgin with continuous covariate, it represents the expected LFC in response to one-unit change of the condition.
 #' @param prev.filter a value between 0 and 1. The prevalence cutoff, defined as the percentage of non-zero values, determines the threshold below which taxa will be filtered out.
@@ -239,8 +239,10 @@ mPower <- function(feature.dat, model.paras,
       Probs.df$covariate.eff.max <- factor(Probs.df$covariate.eff.max, levels = sort(unique(Probs.df$covariate.eff.max)))
       plot7 <- generate_plot3(data = Probs.df, effect.size = 'covariate.eff.max', ylab= 'pOCR', error.bar = F)
       plot <- ggarrange(plot1, plot7, nrow =1)
-      pOCR <- Probs.df %>% dplyr::select(-variable) %>% dplyr::rename(pOCR='value', `max log2 fold change` = 'covariate.eff.max', `Sample size`='nSam')
-      aTPR <- TPR.df %>% dplyr::select(-variable) %>% dplyr::rename(aTPR='value', `max log2 fold change` = 'covariate.eff.max', `Sample size`='nSam')
+      pOCR <- Probs.df %>% dplyr::select(-variable) %>% dplyr::rename(pOCR='value', `max log2 fold change` = 'covariate.eff.max', `Sample size`='nSam') %>%
+        dplyr::select(`Sample size`, `max log2 fold change`,pOCR)
+      aTPR <- TPR.df %>% dplyr::select(-variable) %>% dplyr::rename(aTPR='value', `max log2 fold change` = 'covariate.eff.max', `Sample size`='nSam')%>%
+        dplyr::select(`Sample size`, `max log2 fold change`,aTPR)
 
     }
 
@@ -261,7 +263,8 @@ mPower <- function(feature.dat, model.paras,
       plot9 <- generate_plot3(data = adonis.R2, effect.size = 'covariate.eff.max', ylab= 'R2 (Percent Explained Variance)', R2=T)
       plot <- ggarrange(plot9, plot5, nrow =1)
 
-      power <- TPR.beta %>% dplyr::select(-variable) %>% dplyr::rename(power='value', `max log2 fold change` = 'covariate.eff.max', `Sample size`='nSam')
+      power <- TPR.beta %>% dplyr::select(-variable) %>% dplyr::rename(power='value', `max log2 fold change` = 'covariate.eff.max', `Sample size`='nSam')%>%
+        dplyr::select(`Sample size`, `max log2 fold change`, power)
     }
   }
 
@@ -405,8 +408,10 @@ mPower <- function(feature.dat, model.paras,
 
       plot <- ggarrange(plot1, plot7, nrow =1)
 
-      pOCR <- Probs.df %>% dplyr::select(-variable) %>% dplyr::rename(pOCR='value', `max log2 fold change` = 'covariate.eff.max', `Sample size`='nSam')
-      aTPR <- TPR.df %>% dplyr::select(-variable) %>% dplyr::rename(aTPR='value', `max log2 fold change` = 'covariate.eff.max', `Sample size`='nSam')
+      pOCR <- Probs.df %>% dplyr::select(-variable) %>% dplyr::rename(pOCR='value', `max log2 fold change` = 'covariate.eff.max', `Sample size`='nSam')%>%
+        dplyr::select(`Sample size`, `max log2 fold change`,pOCR)
+      aTPR <- TPR.df %>% dplyr::select(-variable) %>% dplyr::rename(aTPR='value', `max log2 fold change` = 'covariate.eff.max', `Sample size`='nSam')%>%
+        dplyr::select(`Sample size`,`max log2 fold change`,aTPR)
     }
 
     if(test == 'Community'){
@@ -427,7 +432,8 @@ mPower <- function(feature.dat, model.paras,
       plot9 <- generate_plot3(data = adonis.R2, effect.size = 'covariate.eff.max', ylab= 'R2 (Percent Explained Variance)', R2=T, matched.pair = T)
 
       plot <- ggarrange(plot9, plot5, nrow =1)
-      power <- TPR.beta %>% dplyr::select(-variable) %>% dplyr::rename(power='value', `max log2 fold change` = 'covariate.eff.max', `Sample size`='nSam')
+      power <- TPR.beta %>% dplyr::select(-variable) %>% dplyr::rename(power='value', `max log2 fold change` = 'covariate.eff.max', `Sample size`='nSam') %>%
+        dplyr::select(`Sample size`, `max log2 fold change`, power)
     }
   }
 
