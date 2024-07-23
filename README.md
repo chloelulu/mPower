@@ -107,16 +107,25 @@ hypothesis when the null hypothesis is false. An pOCR at least 90% will
 ensure a high likelihood of making some discoveries. Thus in this
 example, around 100 samples should be well-powered.
 
+``` r
+knitr::kable(res1$power, format = "markdown")
+```
+
 | Sample size | max log2 fold change | power |
 |:------------|:---------------------|------:|
-| 20          | 2                    | 0.424 |
-| 60          | 2                    | 0.840 |
-| 100         | 2                    | 0.930 |
+| 20          | 2                    | 0.448 |
+| 60          | 2                    | 0.790 |
+| 100         | 2                    | 0.926 |
 
 #### 2.1.2 Output2: $R^2$ (variance explained) and community-level power curve
 
 $R^2$: the proportion of the total variation in the response data that
 is explained by the explanatory variables.
+
+``` r
+res1$plot
+```
+
 ![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ### 2.2 Estimate Taxa-Level Power for Case-Control Study
@@ -139,11 +148,15 @@ truly differential taxa that are correctly identified as such. SD, ymax
 and ymin represents standard deviation, the upper and lower bound of the
 95% confidence interval for the aTPR, respectively.
 
+``` r
+knitr::kable(res2$aTPR, format = "markdown")
+```
+
 | Sample size | max log2 fold change |      aTPR |
 |:------------|:---------------------|----------:|
-| 20          | 2                    | 0.0186512 |
-| 60          | 2                    | 0.0749891 |
-| 100         | 2                    | 0.1286695 |
+| 20          | 2                    | 0.0250932 |
+| 60          | 2                    | 0.0827398 |
+| 100         | 2                    | 0.1381617 |
 
 #### 2.2.2 Output1: Taxa-level power table - pOCR
 
@@ -151,13 +164,21 @@ and ymin represents standard deviation, the upper and lower bound of the
 the conventional understanding of power, differs in that the specific
 taxa rejected need not be consistent.
 
+``` r
+knitr::kable(res2$pOCR, format = "markdown")
+```
+
 | Sample size | max log2 fold change | pOCR |
 |:------------|:---------------------|-----:|
-| 20          | 2                    | 0.30 |
-| 60          | 2                    | 0.80 |
-| 100         | 2                    | 0.96 |
+| 20          | 2                    | 0.42 |
+| 60          | 2                    | 0.86 |
+| 100         | 2                    | 0.94 |
 
 #### 2.2.3 Output3: aTPR power curve(left) and pOCR power curve(right)
+
+``` r
+res2$plot
+```
 
 ![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 

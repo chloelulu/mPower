@@ -81,14 +81,14 @@ res1 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
 #### 2.1.1 Output1: Community-level power table 
 
 "power"(community-level power): the probability of rejecting the null hypothesis when the null hypothesis is false. An pOCR at least 90% will ensure a high likelihood of making some discoveries. Thus in this example, around 100 samples should be well-powered. 
-```{r echo=F, error=TRUE, message=FALSE, warning=FALSE, include=T, results="asis"}
+```{r error=TRUE, message=FALSE, warning=FALSE, include=T, results="asis"}
 knitr::kable(res1$power, format = "markdown")
 ```
 
 #### 2.1.2 Output2: \( R^2 \) (variance explained) and community-level power curve
 
 \( R^2 \): the proportion of the total variation in the response data that is explained by the explanatory variables.
-```{r echo=F,fig.height=6, fig.width=16}
+```{r fig.height=6, fig.width=16}
 res1$plot
 ```
 
@@ -108,7 +108,7 @@ res2 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
 #### 2.2.1 Output1: Taxa-level power table - aTPR
 
 "aTPR"(average true positive rate): represents the average proportion of truly differential taxa that are correctly identified as such. SD, ymax and ymin represents standard deviation, the upper and lower bound of the 95% confidence interval for the aTPR, respectively.
-```{r echo=F, error=TRUE, message=FALSE, warning=FALSE, include=T, results="asis"}
+```{r error=TRUE, message=FALSE, warning=FALSE, include=T, results="asis"}
 knitr::kable(res2$aTPR, format = "markdown")
 
 ```
@@ -116,13 +116,13 @@ knitr::kable(res2$aTPR, format = "markdown")
 #### 2.2.2 Output1: Taxa-level power table - pOCR 
 
 "pOCR"(probability of making at least one correct rejection): akin to the conventional understanding of power, differs in that the specific taxa rejected need not be consistent.
-```{r echo=F, error=TRUE, message=FALSE, warning=FALSE, include=T, results="asis"}
+```{r error=TRUE, message=FALSE, warning=FALSE, include=T, results="asis"}
 knitr::kable(res2$pOCR, format = "markdown")
 ```
 
 #### 2.2.3 Output3: aTPR power curve(left) and pOCR power curve(right)
 
-```{r echo=F,fig.height=6, fig.width=16}
+```{r fig.height=6, fig.width=16}
 res2$plot
 ```
 
