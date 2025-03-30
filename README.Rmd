@@ -30,7 +30,7 @@ You can also use our Shiny App without coding skills, please access the Shiny Ap
 You need to have a reference feature table, it should be a collection of microbiome sequencing samples from a study population at a specific sampling site. It should be large enough to capture the main compositional variation in the population of interest. 
 
 
-```{r}
+```{r error=TRUE, message=FALSE, warning=FALSE, include=T, results="hide"}
 library(mPower)
 data(feature.dat)
 ```
@@ -94,7 +94,7 @@ res1$plot
 
 
 ### 2.2 Estimate Taxa-Level Power for Case-Control Study
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, results='hide'}
 res2 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
                test = 'Taxa', design = 'CaseControl',
                nSams = c(20, 60, 100), grp.ratio = 0.5,

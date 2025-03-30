@@ -32,18 +32,6 @@ compositional variation in the population of interest.
 
 ``` r
 library(mPower)
-```
-
-    ## Warning: replacing previous import 'MASS::select' by 'dplyr::select' when
-    ## loading 'mPower'
-
-    ## Warning: replacing previous import 'dplyr::lag' by 'stats::lag' when loading
-    ## 'mPower'
-
-    ## Warning: replacing previous import 'dplyr::filter' by 'stats::filter' when
-    ## loading 'mPower'
-
-``` r
 data(feature.dat)
 ```
 
@@ -124,9 +112,9 @@ knitr::kable(res1$power, format = "markdown")
 
 | Sample size | max log2 fold change | power |
 |:------------|:---------------------|------:|
-| 20          | 2                    | 0.428 |
-| 60          | 2                    | 0.854 |
-| 100         | 2                    | 0.930 |
+| 20          | 2                    | 0.442 |
+| 60          | 2                    | 0.820 |
+| 100         | 2                    | 0.928 |
 
 #### 2.1.2 Output2: $R^2$ (variance explained) and community-level power curve
 
@@ -152,157 +140,6 @@ res2 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
                confounder = 'yes', depth.mu = 100000, depth.sd = 4000, verbose = F)
 ```
 
-    ## Differential abundance analysis is testing:  20  samples and  145 out of 204  features!
-    ## Differential abundance analysis is testing:  20  samples and  174 out of 237  features!
-    ## Differential abundance analysis is testing:  20  samples and  169 out of 225  features!
-    ## Differential abundance analysis is testing:  20  samples and  168 out of 249  features!
-    ## Differential abundance analysis is testing:  20  samples and  192 out of 258  features!
-    ## Differential abundance analysis is testing:  20  samples and  159 out of 203  features!
-    ## Differential abundance analysis is testing:  20  samples and  177 out of 216  features!
-    ## Differential abundance analysis is testing:  20  samples and  166 out of 230  features!
-    ## Differential abundance analysis is testing:  20  samples and  185 out of 248  features!
-    ## Differential abundance analysis is testing:  20  samples and  183 out of 246  features!
-    ## Differential abundance analysis is testing:  20  samples and  171 out of 239  features!
-    ## Differential abundance analysis is testing:  20  samples and  159 out of 236  features!
-    ## Differential abundance analysis is testing:  20  samples and  170 out of 225  features!
-    ## Differential abundance analysis is testing:  20  samples and  171 out of 234  features!
-    ## Differential abundance analysis is testing:  20  samples and  159 out of 227  features!
-    ## Differential abundance analysis is testing:  20  samples and  171 out of 235  features!
-    ## Differential abundance analysis is testing:  20  samples and  162 out of 211  features!
-    ## Differential abundance analysis is testing:  20  samples and  170 out of 232  features!
-    ## Differential abundance analysis is testing:  20  samples and  185 out of 259  features!
-    ## Differential abundance analysis is testing:  20  samples and  173 out of 230  features!
-    ## Differential abundance analysis is testing:  20  samples and  168 out of 239  features!
-    ## Differential abundance analysis is testing:  20  samples and  174 out of 251  features!
-    ## Differential abundance analysis is testing:  20  samples and  195 out of 247  features!
-    ## Differential abundance analysis is testing:  20  samples and  172 out of 233  features!
-    ## Differential abundance analysis is testing:  20  samples and  156 out of 225  features!
-    ## Differential abundance analysis is testing:  20  samples and  152 out of 219  features!
-    ## Differential abundance analysis is testing:  20  samples and  178 out of 244  features!
-    ## Differential abundance analysis is testing:  20  samples and  168 out of 230  features!
-    ## Differential abundance analysis is testing:  20  samples and  166 out of 231  features!
-    ## Differential abundance analysis is testing:  20  samples and  169 out of 237  features!
-    ## Differential abundance analysis is testing:  20  samples and  205 out of 264  features!
-    ## Differential abundance analysis is testing:  20  samples and  164 out of 227  features!
-    ## Differential abundance analysis is testing:  20  samples and  195 out of 260  features!
-    ## Differential abundance analysis is testing:  20  samples and  164 out of 211  features!
-    ## Differential abundance analysis is testing:  20  samples and  192 out of 260  features!
-    ## Differential abundance analysis is testing:  20  samples and  184 out of 248  features!
-    ## Differential abundance analysis is testing:  20  samples and  172 out of 234  features!
-    ## Differential abundance analysis is testing:  20  samples and  172 out of 245  features!
-    ## Differential abundance analysis is testing:  20  samples and  171 out of 244  features!
-    ## Differential abundance analysis is testing:  20  samples and  189 out of 255  features!
-    ## Differential abundance analysis is testing:  20  samples and  197 out of 266  features!
-    ## Differential abundance analysis is testing:  20  samples and  187 out of 263  features!
-    ## Differential abundance analysis is testing:  20  samples and  181 out of 267  features!
-    ## Differential abundance analysis is testing:  20  samples and  196 out of 242  features!
-    ## Differential abundance analysis is testing:  20  samples and  191 out of 265  features!
-    ## Differential abundance analysis is testing:  20  samples and  174 out of 250  features!
-    ## Differential abundance analysis is testing:  20  samples and  175 out of 238  features!
-    ## Differential abundance analysis is testing:  20  samples and  173 out of 240  features!
-    ## Differential abundance analysis is testing:  20  samples and  177 out of 224  features!
-    ## Differential abundance analysis is testing:  20  samples and  158 out of 233  features!
-    ## Differential abundance analysis is testing:  60  samples and  236 out of 355  features!
-    ## Differential abundance analysis is testing:  60  samples and  259 out of 357  features!
-    ## Differential abundance analysis is testing:  60  samples and  256 out of 356  features!
-    ## Differential abundance analysis is testing:  60  samples and  248 out of 357  features!
-    ## Differential abundance analysis is testing:  60  samples and  224 out of 341  features!
-    ## Differential abundance analysis is testing:  60  samples and  253 out of 360  features!
-    ## Differential abundance analysis is testing:  60  samples and  220 out of 346  features!
-    ## Differential abundance analysis is testing:  60  samples and  249 out of 370  features!
-    ## Differential abundance analysis is testing:  60  samples and  237 out of 356  features!
-    ## Differential abundance analysis is testing:  60  samples and  236 out of 346  features!
-    ## Differential abundance analysis is testing:  60  samples and  230 out of 353  features!
-    ## Differential abundance analysis is testing:  60  samples and  257 out of 359  features!
-    ## Differential abundance analysis is testing:  60  samples and  238 out of 349  features!
-    ## Differential abundance analysis is testing:  60  samples and  229 out of 345  features!
-    ## Differential abundance analysis is testing:  60  samples and  243 out of 353  features!
-    ## Differential abundance analysis is testing:  60  samples and  245 out of 357  features!
-    ## Differential abundance analysis is testing:  60  samples and  264 out of 363  features!
-    ## Differential abundance analysis is testing:  60  samples and  223 out of 347  features!
-    ## Differential abundance analysis is testing:  60  samples and  249 out of 364  features!
-    ## Differential abundance analysis is testing:  60  samples and  240 out of 353  features!
-    ## Differential abundance analysis is testing:  60  samples and  246 out of 362  features!
-    ## Differential abundance analysis is testing:  60  samples and  247 out of 354  features!
-    ## Differential abundance analysis is testing:  60  samples and  251 out of 364  features!
-    ## Differential abundance analysis is testing:  60  samples and  256 out of 370  features!
-    ## Differential abundance analysis is testing:  60  samples and  239 out of 357  features!
-    ## Differential abundance analysis is testing:  60  samples and  245 out of 361  features!
-    ## Differential abundance analysis is testing:  60  samples and  250 out of 354  features!
-    ## Differential abundance analysis is testing:  60  samples and  249 out of 371  features!
-    ## Differential abundance analysis is testing:  60  samples and  239 out of 357  features!
-    ## Differential abundance analysis is testing:  60  samples and  257 out of 361  features!
-    ## Differential abundance analysis is testing:  60  samples and  228 out of 349  features!
-    ## Differential abundance analysis is testing:  60  samples and  225 out of 348  features!
-    ## Differential abundance analysis is testing:  60  samples and  248 out of 359  features!
-    ## Differential abundance analysis is testing:  60  samples and  259 out of 357  features!
-    ## Differential abundance analysis is testing:  60  samples and  235 out of 358  features!
-    ## Differential abundance analysis is testing:  60  samples and  248 out of 360  features!
-    ## Differential abundance analysis is testing:  60  samples and  238 out of 344  features!
-    ## Differential abundance analysis is testing:  60  samples and  263 out of 364  features!
-    ## Differential abundance analysis is testing:  60  samples and  232 out of 341  features!
-    ## Differential abundance analysis is testing:  60  samples and  244 out of 367  features!
-    ## Differential abundance analysis is testing:  60  samples and  244 out of 350  features!
-    ## Differential abundance analysis is testing:  60  samples and  237 out of 359  features!
-    ## Differential abundance analysis is testing:  60  samples and  244 out of 361  features!
-    ## Differential abundance analysis is testing:  60  samples and  237 out of 364  features!
-    ## Differential abundance analysis is testing:  60  samples and  250 out of 355  features!
-    ## Differential abundance analysis is testing:  60  samples and  248 out of 355  features!
-    ## Differential abundance analysis is testing:  60  samples and  232 out of 339  features!
-    ## Differential abundance analysis is testing:  60  samples and  242 out of 365  features!
-    ## Differential abundance analysis is testing:  60  samples and  247 out of 360  features!
-    ## Differential abundance analysis is testing:  60  samples and  245 out of 362  features!
-    ## Differential abundance analysis is testing:  100  samples and  253 out of 375  features!
-    ## Differential abundance analysis is testing:  100  samples and  264 out of 379  features!
-    ## Differential abundance analysis is testing:  100  samples and  274 out of 382  features!
-    ## Differential abundance analysis is testing:  100  samples and  261 out of 376  features!
-    ## Differential abundance analysis is testing:  100  samples and  261 out of 372  features!
-    ## Differential abundance analysis is testing:  100  samples and  266 out of 380  features!
-    ## Differential abundance analysis is testing:  100  samples and  257 out of 376  features!
-    ## Differential abundance analysis is testing:  100  samples and  287 out of 380  features!
-    ## Differential abundance analysis is testing:  100  samples and  268 out of 379  features!
-    ## Differential abundance analysis is testing:  100  samples and  260 out of 371  features!
-    ## Differential abundance analysis is testing:  100  samples and  258 out of 381  features!
-    ## Differential abundance analysis is testing:  100  samples and  270 out of 381  features!
-    ## Differential abundance analysis is testing:  100  samples and  258 out of 376  features!
-    ## Differential abundance analysis is testing:  100  samples and  269 out of 378  features!
-    ## Differential abundance analysis is testing:  100  samples and  266 out of 373  features!
-    ## Differential abundance analysis is testing:  100  samples and  259 out of 377  features!
-    ## Differential abundance analysis is testing:  100  samples and  276 out of 381  features!
-    ## Differential abundance analysis is testing:  100  samples and  268 out of 377  features!
-    ## Differential abundance analysis is testing:  100  samples and  253 out of 376  features!
-    ## Differential abundance analysis is testing:  100  samples and  283 out of 380  features!
-    ## Differential abundance analysis is testing:  100  samples and  272 out of 379  features!
-    ## Differential abundance analysis is testing:  100  samples and  258 out of 370  features!
-    ## Differential abundance analysis is testing:  100  samples and  269 out of 378  features!
-    ## Differential abundance analysis is testing:  100  samples and  269 out of 381  features!
-    ## Differential abundance analysis is testing:  100  samples and  255 out of 377  features!
-    ## Differential abundance analysis is testing:  100  samples and  255 out of 378  features!
-    ## Differential abundance analysis is testing:  100  samples and  279 out of 378  features!
-    ## Differential abundance analysis is testing:  100  samples and  258 out of 378  features!
-    ## Differential abundance analysis is testing:  100  samples and  266 out of 377  features!
-    ## Differential abundance analysis is testing:  100  samples and  268 out of 374  features!
-    ## Differential abundance analysis is testing:  100  samples and  259 out of 376  features!
-    ## Differential abundance analysis is testing:  100  samples and  275 out of 382  features!
-    ## Differential abundance analysis is testing:  100  samples and  281 out of 380  features!
-    ## Differential abundance analysis is testing:  100  samples and  270 out of 377  features!
-    ## Differential abundance analysis is testing:  100  samples and  254 out of 376  features!
-    ## Differential abundance analysis is testing:  100  samples and  257 out of 377  features!
-    ## Differential abundance analysis is testing:  100  samples and  254 out of 379  features!
-    ## Differential abundance analysis is testing:  100  samples and  261 out of 373  features!
-    ## Differential abundance analysis is testing:  100  samples and  266 out of 378  features!
-    ## Differential abundance analysis is testing:  100  samples and  263 out of 378  features!
-    ## Differential abundance analysis is testing:  100  samples and  266 out of 380  features!
-    ## Differential abundance analysis is testing:  100  samples and  258 out of 375  features!
-    ## Differential abundance analysis is testing:  100  samples and  255 out of 377  features!
-    ## Differential abundance analysis is testing:  100  samples and  262 out of 382  features!
-    ## Differential abundance analysis is testing:  100  samples and  243 out of 374  features!
-    ## Differential abundance analysis is testing:  100  samples and  250 out of 374  features!
-    ## Differential abundance analysis is testing:  100  samples and  268 out of 378  features!
-    ## Differential abundance analysis is testing:  100  samples and  268 out of 376  features!
-    ## Differential abundance analysis is testing:  100  samples and  262 out of 378  features!
-    ## Differential abundance analysis is testing:  100  samples and  263 out of 379  features!
-
 #### 2.2.1 Output1: Taxa-level power table - aTPR
 
 “aTPR”(average true positive rate): represents the average proportion of
@@ -316,9 +153,9 @@ knitr::kable(res2$aTPR, format = "markdown")
 
 | Sample size | max log2 fold change |      aTPR |
 |:------------|:---------------------|----------:|
-| 20          | 2                    | 0.0113019 |
-| 60          | 2                    | 0.0790285 |
-| 100         | 2                    | 0.1400519 |
+| 20          | 2                    | 0.0251155 |
+| 60          | 2                    | 0.0704865 |
+| 100         | 2                    | 0.1256735 |
 
 #### 2.2.2 Output1: Taxa-level power table - pOCR
 
@@ -332,9 +169,9 @@ knitr::kable(res2$pOCR, format = "markdown")
 
 | Sample size | max log2 fold change | pOCR |
 |:------------|:---------------------|-----:|
-| 20          | 2                    | 0.16 |
-| 60          | 2                    | 0.88 |
-| 100         | 2                    | 1.00 |
+| 20          | 2                    | 0.30 |
+| 60          | 2                    | 0.74 |
+| 100         | 2                    | 0.98 |
 
 #### 2.2.3 Output3: aTPR power curve(left) and pOCR power curve(right)
 
