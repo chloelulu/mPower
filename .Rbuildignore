@@ -1,5 +1,6 @@
-^.*\.Rproj$
+^README\.Rmd$
+^README_files$
+^mPower\.Rproj$
+^references\.bib$
+^workflows\.png$
 ^\.Rproj\.user$
-^_pkgdown\.yml$
-^docs$
-^pkgdown$

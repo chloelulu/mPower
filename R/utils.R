@@ -1,5 +1,5 @@
 
-utils::globalVariables(c("otu_table", "sample_data", "lmer", "mclapply", "%do%", "foreach", "mlv", "value", "nSam", "variable", "ymin", "ymax"))
+utils::globalVariables(c("otu_table", "sample_data", "lmer", "mclapply", "%do%", "foreach", "mlv", "value", "nSam", "variable", "ymin", "ymax","Sample size","max log2 fold change"))
 
 rowMeans <- function(data){
   return(apply(data, 1, function(x) mean(x)))
@@ -264,7 +264,7 @@ linda <- function(feature.dat, meta.dat, phyloseq.obj = NULL, formula, feature.d
 
 
 perform_DAA <- function(feature.dat, meta.dat, grp.name, adj.name, design, prev.filter, max.abund.filter,
-                        method = c('LinDA'), verbose){
+                        method = c('LinDA'), verbose=T){
   if(method =='LinDA'){
     if(design %in% c('CaseControl','CrossSectional')){
       if (is.null(adj.name)) {
@@ -381,10 +381,37 @@ EstPara <- function (ref.otu.tab) {
   return(list(mu = ref.otu.tab.p, ref.otu.tab = ref.otu.tab0))
 }
 
+EstPara_abs <- function (feature.dat, gamma) {
+
+  if (is.null(rownames(feature.dat))) {
+    rownames(feature.dat) <- paste0('OTU', 1 : nrow(feature.dat))
+  } # otu * sample
+  samplenames <- colnames(feature.dat)
+  taxnames <- rownames(feature.dat)
+
+  # Add pseduo count(each OTU add gamma estimated from dirmult)
+  ref.otu.tab <- sapply(1:ncol(feature.dat), function (i) gamma + feature.dat[,i]) # C_ij otu * sample
+
+  # back to dirchlet, calculate the true proportion
+  ref.otu.tab.p <- rdirichlet.m(ref.otu.tab) # P_ij nOTU*nSam
+  colnames(ref.otu.tab.p) <- samplenames
+  rownames(ref.otu.tab.p) <- taxnames
+
+  # order OTUs by mean OTU proportion, for later selection
+  ord <- order(rowMeans(ref.otu.tab.p), decreasing = TRUE)
+  ref.otu.tab.p <-  ref.otu.tab.p[ord,]
+
+  # apply size factor
+  Si <- exp(rnorm(ncol(ref.otu.tab.p)))
+  ref.otu.tab0 <- t(t(ref.otu.tab.p)*Si)
+  colnames(ref.otu.tab0) <- colnames(ref.otu.tab.p)
+
+  return(ref.otu.tab0)
+}
 
 
-
-SimulateMSeqU <- function (ref.otu.tab, model.paras, nSam = 100, nOTU = 500, diff.otu.pct = 0.1,
+SimulateMSeqU <- function (ref.otu.tab, model.paras,
+                           nSam, nOTU, diff.otu.pct = 0.1,
                            diff.otu.direct = c("balanced", "unbalanced"),
                            diff.otu.mode = c("random", "abundant", "rare"),
                            covariate.type = c("binary", "continuous"),
@@ -395,7 +422,7 @@ SimulateMSeqU <- function (ref.otu.tab, model.paras, nSam = 100, nOTU = 500, dif
                            conf.cov.cor = 0.6, conf.diff.otu.pct = 0.05, conf.nondiff.otu.pct = 0.1,
                            confounder.eff.min = 0, confounder.eff.max = 1,  # for uniform distribution range
                            error.sd = 0,
-                           depth.mu = 10000, depth.theta = 5, depth.conf.factor = 0) {
+                           depth.mu = 10000, depth.sd = 4000, depth.conf.factor = 0) {
 
   diff.otu.direct <- match.arg(diff.otu.direct)
   diff.otu.mode <- match.arg(diff.otu.mode)
@@ -403,14 +430,19 @@ SimulateMSeqU <- function (ref.otu.tab, model.paras, nSam = 100, nOTU = 500, dif
   confounder <- match.arg(confounder)
   confounder.type <- match.arg(confounder.type)
 
-  ref.otu.tab0 <- ref.otu.tab
-  sample.names <- colnames(model.paras$ref.otu.tab)
-  ref.otu.tab <- model.paras$ref.otu.tab[(1:(nOTU)), ]
-  idx.otu <- rownames(ref.otu.tab)
+  ref.otu.tab0 <- ref.otu.tab # raw otu table
+  # ref.otu.tab <- EstPara_abs(feature.dat = ref.otu.tab, gamma = gamma) # absolute abundance table
+  ref.otu.tab <- model.paras$ref.otu.tab #EstPara(feature.dat = ref.otu.tab)
+  sample.names <- colnames(ref.otu.tab)
+  ref.otu.tab <- ref.otu.tab[(1:(nOTU)), ]
   idx.sample <- sample(sample.names, nSam, replace = T)
   idx.nonsample <- colnames(ref.otu.tab)[!(colnames(ref.otu.tab) %in% idx.sample)]
   ref.otu.tab <- ref.otu.tab[, idx.sample]
-  ref.otu.tab.unselect = ref.otu.tab0[c(1:(nOTU)), ][, idx.nonsample]
+  ## filter with prevalence for avoiding rare taxa =0 issue
+  idx.nozero <- rownames(ref.otu.tab0)[rowSums(ref.otu.tab0[,idx.sample]>0) > 1]
+  ref.otu.tab <- ref.otu.tab[idx.nozero,]
+  nOTU <- nrow(ref.otu.tab) # update on nOTU as 0 OTUs were filtered out, only apply to power estimation, not for other simulation
+  idx.otu <- rownames(ref.otu.tab)
   if(confounder =='no'){
     confounder.type <- "continuous"
     confounder.eff.mean <- 0
@@ -454,7 +486,7 @@ SimulateMSeqU <- function (ref.otu.tab, model.paras, nSam = 100, nOTU = 500, dif
   }
 
   if(diff.otu.mode == "rare") {
-    diff.ind <- sample(otu.ord[round(3 * length(otu.ord)/4):length(otu.ord)], diff.otu.num)
+    diff.ind <- sample(otu.ord[round(1 * length(otu.ord)/4):length(otu.ord)], diff.otu.num)
     diff.otu.ind <- c(diff.otu.ind, diff.ind)
   }
 
@@ -472,6 +504,7 @@ SimulateMSeqU <- function (ref.otu.tab, model.paras, nSam = 100, nOTU = 500, dif
   eta.exp <- eta.exp * t(ref.otu.tab)
   ref.otu.tab.prop <- eta.exp/rowSums(eta.exp)
   ref.otu.tab.prop <- t(ref.otu.tab.prop)
+  depth.theta <- (depth.mu^2) / (depth.sd^2 - depth.mu)
   nSeq <- rnegbin(nSam, mu = depth.mu * exp(scale(X) * depth.conf.factor), theta = depth.theta)
   otu.tab.sim <- sapply(1:ncol(ref.otu.tab.prop), function(i) rmultinom(1, nSeq[i], ref.otu.tab.prop[, i]))
   colnames(otu.tab.sim) <- rownames(eta.exp)
@@ -484,7 +517,8 @@ SimulateMSeqU <- function (ref.otu.tab, model.paras, nSam = 100, nOTU = 500, dif
 
 
 
-SimulateMSeqCU <- function (ref.otu.tab, model.paras, nSubject = 40, nOTU = 50, nTime = 2, error.sd = 1,
+SimulateMSeqCU <- function (ref.otu.tab, model.paras,#gamma,
+                            nSubject = 40, nOTU = 50, nTime = 2, error.sd = 1,
                             MgX.min = 0, MgX.max = 1,
                             X.diff.otu.pct = 0.1, grp.ratio = 1,
                             diff.otu.mode = c("random","abundant","rare"),
@@ -495,7 +529,7 @@ SimulateMSeqCU <- function (ref.otu.tab, model.paras, nSubject = 40, nOTU = 50, 
                             balanced.XT = TRUE, conf.cov.cor = 0.6, confounder = c("none","X", "T"),
                             MgZ.min = 0, MgZ.max = 0,
                             Z.diff.otu.pct = 0.05, Z.nondiff.otu.pct = 0.1,
-                            depth.mu = 10000, depth.theta = 5, depth.conf.factor = 0) {
+                            depth.mu = 10000, depth.sd = 4000, depth.conf.factor = 0) {
 
   confounder <- match.arg(confounder)
   if (confounder == "X") {
@@ -507,11 +541,20 @@ SimulateMSeqCU <- function (ref.otu.tab, model.paras, nSubject = 40, nOTU = 50, 
       stop("Z.diff.otu.pct should not be larger than T.diff.otu.pct!\n")
   }
 
-  sample.names <- colnames(model.paras$ref.otu.tab)
+  ref.otu.tab <- model.paras$ref.otu.tab #EstPara_abs(feature.dat = ref.otu.tab, gamma = gamma) # absolute abundance table
+  sample.names <- colnames(ref.otu.tab)
+  ref.otu.tab <- ref.otu.tab[(1:(nOTU)), ]
+
   idx.sample <- sample(sample.names, nSubject, replace = T)
   OTU <- model.paras$ref.otu.tab[, idx.sample, drop = F]
   otu.names <- names(sort(rowMeans(OTU), decreasing = T))[1:nOTU]
   otu_tab <- OTU[otu.names, , drop = F]
+  ## filter with prevalence for avoiding rare taxa =0 issue
+  idx.nozero <- rowSums(ref.otu.tab[,idx.sample, drop = F]>0) > 1
+  otu_tab <- otu_tab[idx.nozero,]
+  nOTU <- nrow(otu_tab) # update on nOTU as 0 OTUs were filtered out, only apply to power estimation, not for other simulation
+  idx.otu <- rownames(otu_tab)
+
   error.mean <- 0
   otu.tab <- otu_tab[, rep(1:nSubject, each = nTime)]
   colnames(otu.tab) <- paste0(paste0("rep", 1:nTime), "_", rep(paste0("Subject", 1:nSubject), each = nTime))
@@ -613,6 +656,7 @@ SimulateMSeqCU <- function (ref.otu.tab, model.paras, nSubject = 40, nOTU = 50, 
   eta.exp <- eta.exp * t(otu.tab)
   otu.tab.prop <- t(eta.exp/rowSums(eta.exp))
   # nSeq <- rnorm(ncol(otu.tab.prop), mean = depth.mu * exp(scale(X) * depth.conf.factor), sd = depth.theta)
+  depth.theta <- (depth.mu^2) / (depth.sd^2 - depth.mu)
   nSeq <- rnegbin(ncol(otu.tab.prop), mu = depth.mu * exp(scale(X) * depth.conf.factor), theta = depth.theta)
   otu.tab.sim <- sapply(1:ncol(otu.tab.prop), function(i) rmultinom(1, nSeq[i], otu.tab.prop[, i]))
   colnames(otu.tab.sim) <- rownames(eta.exp)

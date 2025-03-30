@@ -75,7 +75,7 @@ res1 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
                diff.otu.pct = 0.1, 
                covariate.eff.min = 0, covariate.eff.maxs = 2,
                diff.otu.direct = 'balanced',diff.otu.mode = 'random',
-               confounder = 'no', depth.mu = 10000, depth.theta = 5, verbose = F)
+               confounder = 'no', depth.mu = 10000, depth.sd = 4000, verbose = F)
 ```
 
 #### 2.1.1 Output1: Community-level power table 
@@ -102,7 +102,7 @@ res2 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
                diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 'random',
                covariate.eff.min = 0, covariate.eff.maxs = 2,
                prev.filter = 0.1, max.abund.filter = 0.002,
-               confounder = 'yes', depth.mu = 100000, depth.theta = 5, verbose = F)
+               confounder = 'yes', depth.mu = 100000, depth.sd = 4000, verbose = F)
 ```
 
 #### 2.2.1 Output1: Taxa-level power table - aTPR

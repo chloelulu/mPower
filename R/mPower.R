@@ -22,8 +22,9 @@
 #' @param conf.nondiff.otu.pct percentage of taxa only associated with the confounder. The percentage of taxa affected by the confounder but not the condition.
 #' @param confounder.eff.min the minimum log2 fold change of taxa associated with the confounder.
 #' @param confounder.eff.max the maximum log2 fold change of taxa associated with the confounder.
-#' @param depth.mu the mean sequencing depth to be simulated. The default is 10,000.
-#' @param depth.theta the standard deviation of the sequencing depth. It is based on Negative Binomial distribution. It regulates the standard deviation, where higher value results in a reduced standard deviation. Dispersion of sequencing depth = Mean sequencing depth^2 /(Standard deviation^2 - Mean sequencing depth).
+#' @param depth.mu the mean sequencing depth for their experiment could be reasonably determined. The default is 10,000.
+#' @param depth.sd the standard deviation of the sequencing depth. The default is 4,000.
+#' @param verbose Logical. If TRUE, prints progress messages. Default is TRUE.
 #' @return A list with the elements
 #' \item{call}{the call}
 #' \item{plot}{the power curves}
@@ -44,7 +45,7 @@
 #'               iters = 500, alpha = 0.05, distance = 'BC',
 #'               diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 'random',
 #'               covariate.eff.min = 0, covariate.eff.maxs = c(1, 2, 3),
-#'               confounder = 'no', depth.mu = 10000, depth.theta = 5)
+#'               confounder = 'no', depth.mu = 10000, depth.sd = 4000)
 #' ## Estimate Taxa-level power for a case-control study
 #' res2 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
 #'               test = 'Taxa', design = 'CaseControl',
@@ -53,23 +54,26 @@
 #'               diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 'random',
 #'               covariate.eff.min = 0, covariate.eff.maxs = 2,
 #'               prev.filter = 0.1, max.abund.filter = 0.002,
-#'               confounder = 'yes', depth.mu = 100000, depth.theta = 5)
+#'               confounder = 'yes', depth.mu = 100000, depth.sd = 4000)
 
 #' @author Lu Yang \email{luyang1005@gmail.com} & Jun Chen \email{Chen.Jun2@mayo.edu}
 #' @references Lu Yang, Jun Chen. mPower: a Real Data-based Power Analysis Tool for Microbiome Study Design.
-#' @import GUniFrac vegan tidyr ggpubr stats ggplot2 dirmult tibble MASS modeest
+#' @import GUniFrac vegan tidyr ggpubr stats ggplot2 dirmult tibble modeest
 #' @importFrom reshape melt
+#' @importFrom utils capture.output
+#' @importFrom dplyr select rename
+#' @importFrom MASS rnegbin
 #' @export
+
 
 mPower <- function(feature.dat, model.paras,
                    test = c('Taxa','Community'), design = c('CaseControl','CrossSectional','MatchedPair'),
-                   nSams = 50, grp.ratio = 0.5,
-                   iters = 50,
+                   nSams = 50, grp.ratio = 0.5, iters = 50,
                    alpha = 0.05, distance = c('BC','Jaccard'),
                    diff.otu.pct = 0.1, diff.otu.direct = c('unbalanced','balanced'), diff.otu.mode = c('random','abundant','rare'),
                    covariate.eff.min=0, covariate.eff.maxs = c(1,2), prev.filter = 0.1, max.abund.filter = 0.002,
                    confounder = c('no','yes'), conf.cov.cor = 0.6, conf.diff.otu.pct = 0.1, conf.nondiff.otu.pct = 0.1, confounder.eff.min = 0, confounder.eff.max = 1,
-                   depth.mu = 10000, depth.theta = 5, verbose =T){
+                   depth.mu = 10000, depth.sd = 4000, verbose =TRUE){
 
   this.call <- match.call()
   design <- match.arg(design)
@@ -130,7 +134,7 @@ mPower <- function(feature.dat, model.paras,
             confounder.eff.min = confounder.eff.min,
             confounder.eff.max = confounder.eff.max,
             depth.mu = depth.mu,
-            depth.theta = depth.theta
+            depth.sd = depth.sd
           )
 
           conf.df <- sim.obj$confounder
@@ -146,11 +150,10 @@ mPower <- function(feature.dat, model.paras,
               try({
                 res.obj <- perform_DAA(feature.dat = sim.obj$otu.tab.sim, meta.dat = meta.dat, design = design,
                                        prev.filter = prev.filter, max.abund.filter = max.abund.filter,
-                                       grp.name = grp.name, adj.name = adj.name, method = method, verbose=verbose)
+                                       grp.name = grp.name, adj.name = adj.name, method = method)
                 p.adj.fdr <- res.obj$p.adj.fdr
                 names(p.adj.fdr) <- rownames(res.obj)
                 truth <- truth[names(p.adj.fdr)]
-
                 top <- names(which(rowMeans(sim.obj$otu.tab.sim) > median(rowMeans(sim.obj$otu.tab.sim))))
                 res.top <- cal.tpr.fdr(p.adj.fdr[top], truth=truth[top], cutoff = alpha)
                 tpr.top[iter,method] <- unname(res.top["TPR"])
@@ -296,7 +299,7 @@ mPower <- function(feature.dat, model.paras,
                                     MgXT.min = 0, MgXT.max = 0, XT.diff.otu.pct = 0,
                                     confounder = 'none',
                                     MgZ.min = 0, MgZ.max = 0, Z.diff.otu.pct = 0, Z.nondiff.otu.pct = 0,
-                                    depth.mu = depth.mu, depth.theta = depth.theta, depth.conf.factor = 0)
+                                    depth.mu = depth.mu, depth.sd = depth.sd, depth.conf.factor = 0)
 
           otu.tab.sim <- sim.obj$otu.tab.sim
           meta.dat <- sim.obj$meta
@@ -350,7 +353,11 @@ mPower <- function(feature.dat, model.paras,
                 p <- prmatrix(obj.dmanova$aov.tab)[1,'Pr(>F)']
               }, file = "/dev/null")
             }else{
-              suppressWarnings(suppressMessages({obj.dmanova <- with(meta.dat, adonis2(dist.mat ~ time, data = meta.dat, permutations = 99, strata = meta.dat$SubjectID))}))
+              suppressWarnings(suppressMessages({
+                h1 <- with(meta.dat, how(nperm = 99, blocks = SubjectID))
+                obj.dmanova <- vegan::adonis2(dist.mat ~ time, data = meta.dat, permutations = h1)
+                # obj.dmanova <- with(meta.dat, adonis2(dist.mat ~ time, data = meta.dat, permutations = 99, strata = meta.dat$SubjectID))
+                }))
               capture.output({
                 r2 <- prmatrix(obj.dmanova)['time','R2']
               }, file = "/dev/null")
@@ -395,7 +402,7 @@ mPower <- function(feature.dat, model.paras,
       TPR.df <- data_summary(data =melt(TPR.df,id = c('nSam','covariate.eff.max')), formula = '.~ variable +nSam+covariate.eff.max')
       TPR.df$nSam <- factor(TPR.df$nSam, levels = sort(unique(TPR.df$nSam)))
       TPR.df$covariate.eff.max <- factor(TPR.df$covariate.eff.max, levels = sort(unique(TPR.df$covariate.eff.max)))
-      plot1 <- generate_plot3(data = TPR.df,effect.size = 'covariate.eff.max', ylab= 'aTPR', matched.pair = T, verbose=verbose)
+      plot1 <- generate_plot3(data = TPR.df,effect.size = 'covariate.eff.max', ylab= 'aTPR', matched.pair = T)
 
       # probability of making any discovery
       Probs.df <- cbind.data.frame(unlist(Probs)) %>% mutate(variable =method)
@@ -437,8 +444,8 @@ mPower <- function(feature.dat, model.paras,
     }
   }
 
-  if(test == 'Community') return(list(call = this.call, plot=plot, power=power))
-  if(test == 'Taxa') return(list(call = this.call, plot=plot, pOCR=pOCR, aTPR=aTPR))
+  if(test == 'Community') return(list(call = this.call, plot=plot, power=power,TPR.beta=TPR.beta))
+  if(test == 'Taxa') return(list(call = this.call, plot=plot, pOCR=pOCR, aTPR=aTPR,TPR.df=TPR.df))
 }
 
 

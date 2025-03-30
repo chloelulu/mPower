@@ -28,7 +28,8 @@ mPower(
   confounder.eff.min = 0,
   confounder.eff.max = 1,
   depth.mu = 10000,
-  depth.theta = 5
+  depth.sd = 4000,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -54,7 +55,7 @@ mPower(
 
 \item{diff.otu.direct}{should be "balanced" or "unbalanced". "balanced": the direction of change for these differential taxa is random, "unbalanced": direction of change is the same. The default is "balanced".}
 
-\item{diff.otu.mode}{should be "rare" or "mix" or "abundant". "abundant": differential taxa come from the top quartile of the abundance distribution, "rare": differential OTU come from the bottom quartile of the abundance distribution, and "mix": random set. The default is "abundant".}
+\item{diff.otu.mode}{should be "rare" or "abundant" or "random". "abundant": differential taxa come from the top quartile of the abundance distribution, "rare": differential OTU come from the bottom quartile of the abundance distribution, and "random": random set. The default is "abundant".}
 
 \item{covariate.eff.min}{a number indicating the minimal log2 fold change associated with the condition ("CaseControl" design), or the expected minimal change in the condition for a one-unit change in the taxa ("CrossSectional" design), or the minimal log2 fold change associated with the condition ("MatchedPair" design).}
 
@@ -76,12 +77,19 @@ mPower(
 
 \item{confounder.eff.max}{the maximum log2 fold change of taxa associated with the confounder.}
 
-\item{depth.mu}{the mean sequencing depth to be simulated. The default is 10,000.}
+\item{depth.mu}{the mean sequencing depth for their experiment could be reasonably determined. The default is 10,000.}
 
-\item{depth.theta}{the standard deviation of the sequencing depth. It is based on Negative Binomial distribution. It regulates the standard deviation, where higher value results in a reduced standard deviation. Dispersion of sequencing depth = Mean sequencing depth^2 /(Standard deviation^2 - Mean sequencing depth).}
+\item{depth.sd}{the standard deviation of the sequencing depth. The default is 4,000.}
+
+\item{verbose}{Logical. If TRUE, prints progress messages. Default is TRUE.}
 }
 \value{
-A ggplot object visualizing the power estimation results.
+A list with the elements
+\item{call}{the call}
+\item{plot}{the power curves}
+\item{pOCR}{the probability of making at least one correct rejection. Only returns for Taxa-level power estimate.}
+\item{aTPR}{the average true positive rate. Only returns for Taxa-level power estimate.}
+\item{power}{Community-level power.}
 }
 \description{
 This function estimates the power for microbiome study design based on various experimental designs and parameters.
@@ -92,15 +100,15 @@ data(feature.dat)
 feature.dat <- feature.dat[rowSums(feature.dat != 0) > 2, ]
 ## Estimate the parameters
 model.paras <- EstPara(ref.otu.tab = feature.dat)
-## Estimate taxa-level power for case control study
+## Estimate Community-level power for a case-control study
 res1 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
               test = 'Community', design = 'CaseControl',
               nSams = 50, grp.ratio = 0.5,
               iters = 500, alpha = 0.05, distance = 'BC',
               diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 'random',
               covariate.eff.min = 0, covariate.eff.maxs = c(1, 2, 3),
-              confounder = 'no', depth.mu = 10000, depth.theta = 5)
-## Estimate community-level power for case control study
+              confounder = 'no', depth.mu = 10000, depth.sd = 4000)
+## Estimate Taxa-level power for a case-control study
 res2 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
               test = 'Taxa', design = 'CaseControl',
               nSams = c(20, 40, 80), grp.ratio = 0.5,
@@ -108,7 +116,7 @@ res2 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
               diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 'random',
               covariate.eff.min = 0, covariate.eff.maxs = 2,
               prev.filter = 0.1, max.abund.filter = 0.002,
-              confounder = 'yes', depth.mu = 100000, depth.theta = 5)
+              confounder = 'yes', depth.mu = 100000, depth.sd = 4000)
 }
 \references{
 Lu Yang, Jun Chen. mPower: a Real Data-based Power Analysis Tool for Microbiome Study Design.
