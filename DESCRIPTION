@@ -1,14 +1,14 @@
 Package: mPower
 Type: Package
 Title: Real Data-based Power Analysis Tool for Microbiome Study Design
-Version: 0.1.0
+Version: 0.1.1
 Author: Lu Yang and Jun Chen
 Maintainer: Lu Yang <luyang1005@gmail.com>
 Description: A comprehensive tool designed for power analysis in microbiome study designs. It leverages real data to provide accurate power estimates, aiding researchers in optimizing experimental designs and improving the reliability of their microbiome studies.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.3
 Suggests: 
     knitr,
     rmarkdown,

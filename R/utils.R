@@ -434,7 +434,7 @@ SimulateMSeqU <- function (ref.otu.tab, model.paras,
   ref.otu.tab <- model.paras$ref.otu.tab #EstPara(feature.dat = ref.otu.tab)
   sample.names <- colnames(ref.otu.tab)
   ref.otu.tab <- ref.otu.tab[(1:(nOTU)), ]
-  idx.sample <- sample(sample.names, nSam, replace = F)
+  idx.sample <- sample(sample.names, nSam, replace = T)
   idx.nonsample <- colnames(ref.otu.tab)[!(colnames(ref.otu.tab) %in% idx.sample)]
   ref.otu.tab <- ref.otu.tab[, idx.sample]
   ## filter with prevalence for avoiding rare taxa =0 issue

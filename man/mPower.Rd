@@ -16,7 +16,7 @@ mPower(
   distance = c("BC", "Jaccard"),
   diff.otu.pct = 0.1,
   diff.otu.direct = c("unbalanced", "balanced"),
-  diff.otu.mode = c("random", "abundant", "rare"),
+  diff.otu.mode = 1,
   covariate.eff.min = 0,
   covariate.eff.maxs = c(1, 2),
   prev.filter = 0.1,
@@ -55,7 +55,25 @@ mPower(
 
 \item{diff.otu.direct}{should be "balanced" or "unbalanced". "balanced": the direction of change for these differential taxa is random, "unbalanced": direction of change is the same. The default is "balanced".}
 
-\item{diff.otu.mode}{should be "rare" or "abundant" or "random". "abundant": differential taxa come from the top quartile of the abundance distribution, "rare": differential OTU come from the bottom quartile of the abundance distribution, and "random": random set. The default is "abundant".}
+\item{diff.otu.mode}{Numeric value controlling how differential taxa are selected
+based on their relative abundance. The selected abundance range must be
+wider than \code{diff.otu.pct}.
+\itemize{
+  \item \code{diff.otu.mode = 1} (default, \emph{random}):
+    Differential taxa are randomly sampled from the full set of taxa.
+  \item \code{diff.otu.mode < 0.5} (\emph{abundant}):
+    Differential taxa are sampled from the most abundant taxa, ranked in
+    decreasing abundance, and restricted to the top proportion defined by
+    \code{diff.otu.mode}. For example, \code{diff.otu.mode = 0.25} samples
+    taxa from the top 25\% most abundant taxa (abundance quantile range
+    \eqn{[0, 0.25]}).
+  \item \code{diff.otu.mode > 0.5} (\emph{rare}):
+    Differential taxa are sampled from the least abundant taxa, ranked in
+    decreasing abundance, and restricted to the bottom proportion defined by
+    \code{1 - diff.otu.mode}. For example, \code{diff.otu.mode = 0.75} samples
+    taxa from the bottom 25\% lowest-abundance taxa (abundance quantile range
+    \eqn{[0.75, 1]}).
+}}
 
 \item{covariate.eff.min}{a number indicating the minimal log2 fold change associated with the condition ("CaseControl" design), or the expected minimal change in the condition for a one-unit change in the taxa ("CrossSectional" design), or the minimal log2 fold change associated with the condition ("MatchedPair" design).}
 
@@ -105,7 +123,7 @@ res1 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
               test = 'Community', design = 'CaseControl',
               nSams = 50, grp.ratio = 0.5,
               iters = 500, alpha = 0.05, distance = 'BC',
-              diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 'random',
+              diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 1,
               covariate.eff.min = 0, covariate.eff.maxs = c(1, 2, 3),
               confounder = 'no', depth.mu = 10000, depth.sd = 4000)
 ## Estimate Taxa-level power for a case-control study
@@ -113,7 +131,7 @@ res2 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
               test = 'Taxa', design = 'CaseControl',
               nSams = c(20, 40, 80), grp.ratio = 0.5,
               iters = 100, alpha = 0.05, distance = 'BC',
-              diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 'random',
+              diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 1,
               covariate.eff.min = 0, covariate.eff.maxs = 2,
               prev.filter = 0.1, max.abund.filter = 0.002,
               confounder = 'yes', depth.mu = 100000, depth.sd = 4000)
