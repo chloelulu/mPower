@@ -95,7 +95,7 @@ res1 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
                iters = 500, alpha = 0.05, distance = 'BC',
                diff.otu.pct = 0.1, 
                covariate.eff.min = 0, covariate.eff.maxs = 2,
-               diff.otu.direct = 'balanced',diff.otu.mode = 'random',
+               diff.otu.direct = 'balanced',diff.otu.mode = 1,
                confounder = 'no', depth.mu = 10000, depth.sd = 4000, verbose = F)
 ```
 
@@ -112,9 +112,9 @@ knitr::kable(res1$power, format = "markdown")
 
 | Sample size | max log2 fold change | power |
 |:------------|:---------------------|------:|
-| 20          | 2                    | 0.442 |
-| 60          | 2                    | 0.820 |
-| 100         | 2                    | 0.928 |
+| 20          | 2                    | 0.748 |
+| 60          | 2                    | 0.984 |
+| 100         | 2                    | 0.998 |
 
 #### 2.1.2 Output2: $R^2$ (variance explained) and community-level power curve
 
@@ -134,7 +134,7 @@ res2 <- mPower(feature.dat = feature.dat, model.paras = model.paras,
                test = 'Taxa', design = 'CaseControl',
                nSams = c(20, 60, 100), grp.ratio = 0.5,
                iters = 50, alpha = 0.05, distance = 'BC',
-               diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 'random',
+               diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 1,
                covariate.eff.min = 0, covariate.eff.maxs = 2,
                prev.filter = 0.1, max.abund.filter = 0.002,
                confounder = 'yes', depth.mu = 100000, depth.sd = 4000, verbose = F)
@@ -153,9 +153,9 @@ knitr::kable(res2$aTPR, format = "markdown")
 
 | Sample size | max log2 fold change |      aTPR |
 |:------------|:---------------------|----------:|
-| 20          | 2                    | 0.0251155 |
-| 60          | 2                    | 0.0704865 |
-| 100         | 2                    | 0.1256735 |
+| 20          | 2                    | 0.0325159 |
+| 60          | 2                    | 0.0968829 |
+| 100         | 2                    | 0.1364140 |
 
 #### 2.2.2 Output1: Taxa-level power table - pOCR
 
@@ -169,8 +169,8 @@ knitr::kable(res2$pOCR, format = "markdown")
 
 | Sample size | max log2 fold change | pOCR |
 |:------------|:---------------------|-----:|
-| 20          | 2                    | 0.30 |
-| 60          | 2                    | 0.74 |
+| 20          | 2                    | 0.62 |
+| 60          | 2                    | 0.96 |
 | 100         | 2                    | 0.98 |
 
 #### 2.2.3 Output3: aTPR power curve(left) and pOCR power curve(right)
