@@ -11,7 +11,25 @@
 #' @param distance the type of distance metric used in community-level power estimation: "BC" or "Jaccard". Should be ignored for Taxa-level power estimation. Jaccard distance assesses community similarity by species presence or absence; Bray-Curtis (BC) distance considers both presence and species abundance.
 #' @param diff.otu.pct a numeric value between 0 and 1 indicating the percentage of differential taxa to be estimated. If 0, global null setting is simulated. The default is 0.1.
 #' @param diff.otu.direct should be "balanced" or "unbalanced". "balanced": the direction of change for these differential taxa is random, "unbalanced": direction of change is the same. The default is "balanced".
-#' @param diff.otu.mode should be "rare" or "abundant" or "random". "abundant": differential taxa come from the top quartile of the abundance distribution, "rare": differential OTU come from the bottom quartile of the abundance distribution, and "random": random set. The default is "abundant".
+#' @param diff.otu.mode Numeric value controlling how differential taxa are selected
+#'   based on their relative abundance. The selected abundance range must be
+#'   wider than \code{diff.otu.pct}.
+#'   \itemize{
+#'     \item \code{diff.otu.mode = 1} (default, \emph{random}):
+#'       Differential taxa are randomly sampled from the full set of taxa.
+#'     \item \code{diff.otu.mode < 0.5} (\emph{abundant}):
+#'       Differential taxa are sampled from the most abundant taxa, ranked in
+#'       decreasing abundance, and restricted to the top proportion defined by
+#'       \code{diff.otu.mode}. For example, \code{diff.otu.mode = 0.25} samples
+#'       taxa from the top 25\% most abundant taxa (abundance quantile range
+#'       \eqn{[0, 0.25]}).
+#'     \item \code{diff.otu.mode > 0.5} (\emph{rare}):
+#'       Differential taxa are sampled from the least abundant taxa, ranked in
+#'       decreasing abundance, and restricted to the bottom proportion defined by
+#'       \code{1 - diff.otu.mode}. For example, \code{diff.otu.mode = 0.75} samples
+#'       taxa from the bottom 25\% lowest-abundance taxa (abundance quantile range
+#'       \eqn{[0.75, 1]}).
+#'   }
 #' @param covariate.eff.min a number indicating the minimal log2 fold change associated with the condition ("CaseControl" design), or the expected minimal change in the condition for a one-unit change in the taxa ("CrossSectional" design), or the minimal log2 fold change associated with the condition ("MatchedPair" design).
 #' @param covariate.eff.maxs a number or a vector indicating the lower and upper range for max log2 fold change. The definition of max log2 fold change: In "CaseControl" design (or "CrossSectional" with binary covariate), it represents the log2 fold change (LFC) between the conditions; In "CrossSectional" desgin with continuous covariate, it represents the expected LFC in response to one-unit change of the condition.
 #' @param prev.filter a value between 0 and 1. The prevalence cutoff, defined as the percentage of non-zero values, determines the threshold below which taxa will be filtered out.
@@ -43,7 +61,7 @@
 #'               test = 'Community', design = 'CaseControl',
 #'               nSams = 50, grp.ratio = 0.5,
 #'               iters = 500, alpha = 0.05, distance = 'BC',
-#'               diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 'random',
+#'               diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 1,
 #'               covariate.eff.min = 0, covariate.eff.maxs = c(1, 2, 3),
 #'               confounder = 'no', depth.mu = 10000, depth.sd = 4000)
 #' ## Estimate Taxa-level power for a case-control study
@@ -51,7 +69,7 @@
 #'               test = 'Taxa', design = 'CaseControl',
 #'               nSams = c(20, 40, 80), grp.ratio = 0.5,
 #'               iters = 100, alpha = 0.05, distance = 'BC',
-#'               diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 'random',
+#'               diff.otu.pct = 0.1, diff.otu.direct = 'balanced',diff.otu.mode = 1,
 #'               covariate.eff.min = 0, covariate.eff.maxs = 2,
 #'               prev.filter = 0.1, max.abund.filter = 0.002,
 #'               confounder = 'yes', depth.mu = 100000, depth.sd = 4000)
@@ -70,7 +88,7 @@ mPower <- function(feature.dat, model.paras,
                    test = c('Taxa','Community'), design = c('CaseControl','CrossSectional','MatchedPair'),
                    nSams = 50, grp.ratio = 0.5, iters = 50,
                    alpha = 0.05, distance = c('BC','Jaccard'),
-                   diff.otu.pct = 0.1, diff.otu.direct = c('unbalanced','balanced'), diff.otu.mode = c('random','abundant','rare'),
+                   diff.otu.pct = 0.1, diff.otu.direct = c('unbalanced','balanced'), diff.otu.mode = 1,
                    covariate.eff.min=0, covariate.eff.maxs = c(1,2), prev.filter = 0.1, max.abund.filter = 0.002,
                    confounder = c('no','yes'), conf.cov.cor = 0.6, conf.diff.otu.pct = 0.1, conf.nondiff.otu.pct = 0.1, confounder.eff.min = 0, confounder.eff.max = 1,
                    depth.mu = 10000, depth.sd = 4000, verbose =TRUE){
@@ -79,7 +97,6 @@ mPower <- function(feature.dat, model.paras,
   design <- match.arg(design)
   test <- match.arg(test)
   distance <- match.arg(distance)
-  diff.otu.mode <- match.arg(diff.otu.mode)
   diff.otu.direct <- match.arg(diff.otu.direct)
   confounder <- match.arg(confounder)
   methods <- 'LinDA' # To be updated as multiple DAA methods
@@ -97,7 +114,7 @@ mPower <- function(feature.dat, model.paras,
   adj.name <- if (confounder == "yes") "Z" else NULL
 
   if(verbose) cat('----Calculating in progressing----')
-
+  zero <- NULL
   ## 0. CaseControl or CrossSectional design
   if(design == "CaseControl" || design == "CrossSectional") {
 
@@ -136,6 +153,7 @@ mPower <- function(feature.dat, model.paras,
             depth.mu = depth.mu,
             depth.sd = depth.sd
           )
+          zero <- c(zero, mean(sim.obj$otu.tab.sim==0))
 
           conf.df <- sim.obj$confounder
           colnames(conf.df) <- 'Z'
@@ -193,12 +211,12 @@ mPower <- function(feature.dat, model.paras,
                 p <- prmatrix(obj.dmanova$aov.tab)[1,'Pr(>F)']
               }, file = "/dev/null")
             }else{
-              suppressWarnings(suppressMessages({obj.adonis <- adonis(as.formula(formula),data = meta.dat)}))
+              suppressWarnings(suppressMessages({obj.adonis <- vegan::adonis2(as.formula(formula),data = meta.dat, by = 'margin')}))
               capture.output({
-                r2 <- prmatrix(obj.adonis$aov.tab)['X', 'R2']
+                r2 <- obj.adonis['X','R2']
               }, file = "/dev/null")
               capture.output({
-                p <- prmatrix(obj.adonis$aov.tab)['X','Pr(>F)']
+                p <- obj.adonis['X','Pr(>F)']
               }, file = "/dev/null")
             }
             P <- c(P, p)
@@ -300,7 +318,7 @@ mPower <- function(feature.dat, model.paras,
                                     confounder = 'none',
                                     MgZ.min = 0, MgZ.max = 0, Z.diff.otu.pct = 0, Z.nondiff.otu.pct = 0,
                                     depth.mu = depth.mu, depth.sd = depth.sd, depth.conf.factor = 0)
-
+          zero <- c(zero, mean(sim.obj$otu.tab.sim==0))
           otu.tab.sim <- sim.obj$otu.tab.sim
           meta.dat <- sim.obj$meta
           if(length(unique(meta.dat$time))==2){meta.dat$X <- as.factor(meta.dat$time)}
@@ -355,7 +373,7 @@ mPower <- function(feature.dat, model.paras,
             }else{
               suppressWarnings(suppressMessages({
                 h1 <- with(meta.dat, how(nperm = 99, blocks = SubjectID))
-                obj.dmanova <- vegan::adonis2(dist.mat ~ time, data = meta.dat, permutations = h1)
+                obj.dmanova <- vegan::adonis2(dist.mat ~ time, data = meta.dat, permutations = h1, by ='margin')
                 # obj.dmanova <- with(meta.dat, adonis2(dist.mat ~ time, data = meta.dat, permutations = 99, strata = meta.dat$SubjectID))
                 }))
               capture.output({
@@ -444,8 +462,8 @@ mPower <- function(feature.dat, model.paras,
     }
   }
 
-  if(test == 'Community') return(list(call = this.call, plot=plot, power=power,TPR.beta=TPR.beta))
-  if(test == 'Taxa') return(list(call = this.call, plot=plot, pOCR=pOCR, aTPR=aTPR,TPR.df=TPR.df))
+  if(test == 'Community') return(list(call = this.call, plot=plot, power=power,TPR.beta=TPR.beta, zero=zero))
+  if(test == 'Taxa') return(list(call = this.call, plot=plot, pOCR=pOCR, aTPR=aTPR,TPR.df=TPR.df, zero=zero))
 }
 
 

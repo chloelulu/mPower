@@ -413,7 +413,7 @@ EstPara_abs <- function (feature.dat, gamma) {
 SimulateMSeqU <- function (ref.otu.tab, model.paras,
                            nSam, nOTU, diff.otu.pct = 0.1,
                            diff.otu.direct = c("balanced", "unbalanced"),
-                           diff.otu.mode = c("random", "abundant", "rare"),
+                           diff.otu.mode = 1,
                            covariate.type = c("binary", "continuous"),
                            grp.ratio = 0.5,
                            covariate.eff.min = 0, covariate.eff.max = 1,
@@ -425,7 +425,6 @@ SimulateMSeqU <- function (ref.otu.tab, model.paras,
                            depth.mu = 10000, depth.sd = 4000, depth.conf.factor = 0) {
 
   diff.otu.direct <- match.arg(diff.otu.direct)
-  diff.otu.mode <- match.arg(diff.otu.mode)
   covariate.type <- match.arg(covariate.type)
   confounder <- match.arg(confounder)
   confounder.type <- match.arg(confounder.type)
@@ -435,7 +434,7 @@ SimulateMSeqU <- function (ref.otu.tab, model.paras,
   ref.otu.tab <- model.paras$ref.otu.tab #EstPara(feature.dat = ref.otu.tab)
   sample.names <- colnames(ref.otu.tab)
   ref.otu.tab <- ref.otu.tab[(1:(nOTU)), ]
-  idx.sample <- sample(sample.names, nSam, replace = T)
+  idx.sample <- sample(sample.names, nSam, replace = F)
   idx.nonsample <- colnames(ref.otu.tab)[!(colnames(ref.otu.tab) %in% idx.sample)]
   ref.otu.tab <- ref.otu.tab[, idx.sample]
   ## filter with prevalence for avoiding rare taxa =0 issue
@@ -475,18 +474,19 @@ SimulateMSeqU <- function (ref.otu.tab, model.paras,
   otu.ord <- 1:(nOTU)
   diff.otu.ind <- NULL
   diff.otu.num <- round(diff.otu.pct * nOTU)
-  if(diff.otu.mode == "random") {
+  if(diff.otu.mode == 1) {
     diff.ind <- sample(otu.ord, diff.otu.num)
     diff.otu.ind <- c(diff.otu.ind, diff.ind)
   }
 
-  if(diff.otu.mode == "abundant"){
-    diff.ind <- sample(otu.ord[1:round(length(otu.ord)/4)], diff.otu.num)
+
+  if(diff.otu.mode < 0.5){
+    diff.ind <- sample(otu.ord[1:round(length(otu.ord)* diff.otu.mode)], diff.otu.num)
     diff.otu.ind <- c(diff.otu.ind, diff.ind)
   }
 
-  if(diff.otu.mode == "rare") {
-    diff.ind <- sample(otu.ord[round(1 * length(otu.ord)/4):length(otu.ord)], diff.otu.num)
+  if(diff.otu.mode > 0.5) {
+    diff.ind <- sample(otu.ord[round(diff.otu.mode * length(otu.ord)):length(otu.ord)], diff.otu.num)
     diff.otu.ind <- c(diff.otu.ind, diff.ind)
   }
 
@@ -521,7 +521,7 @@ SimulateMSeqCU <- function (ref.otu.tab, model.paras,#gamma,
                             nSubject = 40, nOTU = 50, nTime = 2, error.sd = 1,
                             MgX.min = 0, MgX.max = 1,
                             X.diff.otu.pct = 0.1, grp.ratio = 1,
-                            diff.otu.mode = c("random","abundant","rare"),
+                            diff.otu.mode = 1,
                             balanced.X = TRUE, SbT = 0, T.diff.otu.pct = 0,
                             MgT.min = 0, MgT.max = 1,
                             balanced.T = TRUE, XT.diff.otu.pct = 0,
@@ -582,17 +582,17 @@ SimulateMSeqCU <- function (ref.otu.tab, model.paras,#gamma,
   X.diff.otu.num <- round(X.diff.otu.pct * nOTU)
   T.diff.otu.num <- round(T.diff.otu.pct * nOTU)
 
-  if(diff.otu.mode =='abundant'){
-    X.diff.otu.ind.tmp <- sample(otu.ord[1:round(length(otu.ord)/4)], X.diff.otu.num)
-    T.diff.otu.ind.tmp <- sample(otu.ord[1:round(length(otu.ord)/4)], T.diff.otu.num)
+  if(diff.otu.mode <0.5){
+    X.diff.otu.ind.tmp <- sample(otu.ord[1:round(length(otu.ord) * diff.otu.mode)], X.diff.otu.num)
+    T.diff.otu.ind.tmp <- sample(otu.ord[1:round(length(otu.ord) * diff.otu.mode)], T.diff.otu.num)
   }
 
-  if(diff.otu.mode =='rare'){
-    X.diff.otu.ind.tmp <- sample(otu.ord[round(3 * length(otu.ord)/4):length(otu.ord)], X.diff.otu.num)
-    T.diff.otu.ind.tmp <- sample(otu.ord[round(3 * length(otu.ord)/4):length(otu.ord)], T.diff.otu.num)
+  if(diff.otu.mode >0.5){
+    X.diff.otu.ind.tmp <- sample(otu.ord[round(length(otu.ord) * diff.otu.mode):length(otu.ord)], X.diff.otu.num)
+    T.diff.otu.ind.tmp <- sample(otu.ord[round(length(otu.ord) * length(otu.ord)):length(otu.ord)], T.diff.otu.num)
   }
 
-  if(diff.otu.mode =='random'){
+  if(diff.otu.mode ==1){
     X.diff.otu.ind.tmp <- sample(otu.ord, X.diff.otu.num)
     T.diff.otu.ind.tmp <- sample(otu.ord, T.diff.otu.num)
   }
